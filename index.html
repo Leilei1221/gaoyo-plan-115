@@ -86,7 +86,8 @@
     <div class="section-title"><i class="bi bi-person me-1"></i>老師基本資料</div>
     <div class="row g-3 mb-4">
       <div class="col-md-4">
-        <label class="form-label fw-semibold">姓名 <span class="required-star">*</span></label>
+        <label class="form-label fw-semibold">今年執行教師姓名 <span class="required-star">*</span></label>
+        <div class="hint mb-1">本年度實際負責老師（可與去年計畫主持人不同）</div>
         <input type="text" id="f_name" class="form-control" placeholder="請輸入您的姓名" required>
       </div>
       <div class="col-md-4">
@@ -100,11 +101,11 @@
         </label>
         <div class="d-flex gap-3 mb-1">
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="plan_name_type" id="typeC" value="course" checked onchange="updateNameLabel()">
+            <input class="form-check-input" type="radio" name="plan_name_type" id="typeC" value="course" checked onchange="updateNameLabel();toggleA1Fields()">
             <label class="form-check-label small" for="typeC">課程</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="plan_name_type" id="typeG" value="community" onchange="updateNameLabel()">
+            <input class="form-check-input" type="radio" name="plan_name_type" id="typeG" value="community" onchange="updateNameLabel();toggleA1Fields()">
             <label class="form-check-label small" for="typeG">社群</label>
           </div>
         </div>
@@ -135,7 +136,7 @@
           <input type="text" id="a1_course_code" class="form-control" placeholder="如 A2-8（由主持人統一編號）">
           <div class="hint">若不確定可先空白</div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-8" id="a1-course-block-type">
           <label class="form-label fw-semibold">課程類型 <span class="required-star">*</span></label>
           <div class="d-flex flex-wrap gap-3 mt-1">
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_course_type" value="校訂必修"><label class="form-check-label">校訂必修</label></div>
@@ -172,7 +173,7 @@
           </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-6" id="a1-course-block-s1">
           <label class="form-label fw-semibold">課程領域（上學期）</label>
           <div class="d-flex gap-3">
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s1" value="單科"><label class="form-check-label">單科</label></div>
@@ -180,7 +181,7 @@
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s1" value="跨領域"><label class="form-check-label">跨領域</label></div>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" id="a1-course-block-s2">
           <label class="form-label fw-semibold">課程領域（下學期）</label>
           <div class="d-flex gap-3">
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s2" value="單科"><label class="form-check-label">單科</label></div>
@@ -223,13 +224,17 @@
           <div class="hint mb-1">格式：1.對象（人數）2.主要活動數量：X場 3.內容：... 4.預期成效：...</div>
           <textarea id="a1_goal" class="form-control" rows="4" placeholder="請依格式填寫..."></textarea>
         </div>
-        <div class="col-12">
-          <label class="form-label fw-semibold">社群成員（選填）</label>
-          <textarea id="a1_community_members" class="form-control" rows="2" placeholder="格式：科目-姓名、科目-姓名..."></textarea>
-        </div>
-        <div class="col-12">
-          <label class="form-label fw-semibold">社群活動說明（選填）</label>
-          <textarea id="a1_community_desc" class="form-control" rows="2" placeholder="社群主要活動內容、次數..."></textarea>
+        <div class="col-12" id="a1-community-block">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">社群成員 <span class="required-star" id="a1-community-star">*</span></label>
+              <textarea id="a1_community_members" class="form-control" rows="2" placeholder="格式：科目-姓名、科目-姓名..."></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">社群活動說明</label>
+              <textarea id="a1_community_desc" class="form-control" rows="3" placeholder="社群主要活動內容、次數、辦理方式..."></textarea>
+            </div>
+          </div>
         </div>
       </div>
     </div><!-- /a1 -->
@@ -434,6 +439,17 @@ function updateNameLabel() {
     : '請輸入社群名稱，如：韌生花蓮教師社群';
 }
 
+function toggleA1Fields() {
+  var isCourse = document.getElementById('typeC').checked;
+  var courseBlocks = ['a1-course-block-type','a1-course-block-s1','a1-course-block-s2'];
+  courseBlocks.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isCourse ? '' : 'none';
+  });
+  var commBlock = document.getElementById('a1-community-block');
+  if (commBlock) commBlock.style.display = isCourse ? 'none' : '';
+}
+
 function getChecked(cls) {
   return Array.from(document.querySelectorAll('.' + cls + ':checked')).map(function(e) { return e.value; });
 }
@@ -583,6 +599,8 @@ function loadOldPlan() {
   var sub = item.suggested_sub_plan;
   document.getElementById('f_sub_plan').value = sub;
   showPlanSection();
+  // 同步切換 A-1 課程/社群欄位顯示
+  if (sub === 'a1') toggleA1Fields();
 
   // 預填各子計畫欄位
   if (sub === 'a1') {
@@ -622,10 +640,14 @@ function loadOldPlan() {
         if (el) el.checked = true;
       });
     }
-    // 目標值
-    if (f.goal_description && !f.goal_description.includes('原113學年度')) {
-      document.getElementById('a1_goal').value = f.goal_description;
+    // 目標值（優先用 goal_description，備選用 activity_description）
+    var goalText = '';
+    if (f.goal_description && !f.goal_description.includes('原113學年度') && !f.goal_description.includes('預期達成的目標值(')) {
+      goalText = f.goal_description;
+    } else if (f.activity_description) {
+      goalText = f.activity_description;
     }
+    if (goalText) document.getElementById('a1_goal').value = goalText;
     // 社群成員
     if (f.community_members) document.getElementById('a1_community_members').value = f.community_members;
     if (f.activity_description) document.getElementById('a1_community_desc').value = f.activity_description;
