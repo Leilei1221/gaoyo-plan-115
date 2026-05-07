@@ -50,6 +50,37 @@
     <br><small class="mt-1 d-block">若您還有其他子計畫需要填寫，請直接繼續填寫下方表單。</small>
   </div>
 
+  <!-- ── 舊計畫預填區 ── -->
+  <div class="card p-4 mb-4 border-start border-4 border-warning">
+    <div class="section-title"><i class="bi bi-clock-history me-1"></i>載入 114 年度舊計畫（可選）</div>
+    <p class="small text-muted mb-3">選擇您去年的計畫，系統會自動預填對應欄位，再由您修改調整即可。</p>
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">選擇老師</label>
+        <select id="old_teacher_sel" class="form-select form-select-sm" onchange="onOldTeacherChange()">
+          <option value="">-- 請選擇 --</option>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label small fw-semibold">選擇舊計畫</label>
+        <select id="old_plan_sel" class="form-select form-select-sm" disabled onchange="onOldPlanChange()">
+          <option value="">-- 先選擇老師 --</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-warning btn-sm w-100" id="loadOldBtn" onclick="loadOldPlan()" disabled>
+          <i class="bi bi-download me-1"></i>載入預填
+        </button>
+      </div>
+    </div>
+    <div id="old_suggest" class="mt-2" style="display:none">
+      <div class="alert alert-info py-2 mb-0 small">
+        <i class="bi bi-lightbulb me-1"></i>
+        <span id="old_suggest_text"></span>
+      </div>
+    </div>
+  </div>
+
   <div class="card p-4 mb-4">
     <!-- ── 一、老師基本資料 ── -->
     <div class="section-title"><i class="bi bi-person me-1"></i>老師基本資料</div>
@@ -478,6 +509,130 @@ function validate(payload) {
   if (!payload.goal_description) { alert('請填寫整體預期達成目標值'); return false; }
   if (payload.sub_plan_type === 'b2' && !payload.plan_goal) { alert('B2 請填寫計畫目標'); return false; }
   return true;
+}
+
+// ── 舊計畫預填邏輯 ─────────────────────────────────────────
+var OLD_DATA = [];
+
+fetch('data.json').then(function(r){ return r.json(); }).then(function(d){
+  OLD_DATA = d;
+  // 建立老師下拉（去重）
+  var seen = {};
+  var sel = document.getElementById('old_teacher_sel');
+  d.forEach(function(item){
+    if (!seen[item.teacher_name]) {
+      seen[item.teacher_name] = true;
+      var opt = document.createElement('option');
+      opt.value = item.teacher_name;
+      opt.textContent = item.teacher_name + (item.subject ? '（' + item.subject + '）' : '');
+      sel.appendChild(opt);
+    }
+  });
+}).catch(function(){ /* 無舊資料也沒關係 */ });
+
+function onOldTeacherChange() {
+  var name = document.getElementById('old_teacher_sel').value;
+  var planSel = document.getElementById('old_plan_sel');
+  planSel.innerHTML = '<option value="">-- 請選擇舊計畫 --</option>';
+  planSel.disabled = !name;
+  document.getElementById('loadOldBtn').disabled = true;
+  document.getElementById('old_suggest').style.display = 'none';
+  if (!name) return;
+  OLD_DATA.filter(function(i){ return i.teacher_name === name; }).forEach(function(item, idx){
+    var opt = document.createElement('option');
+    opt.value = idx + '_' + item.id;
+    var label = '[' + item.old_code + '] ' + (item.course_name && item.course_name !== '課程名稱' ? item.course_name : item.source_file.replace('.docx',''));
+    opt.textContent = label;
+    opt.dataset.idx = OLD_DATA.indexOf(item);
+    planSel.appendChild(opt);
+  });
+}
+
+function onOldPlanChange() {
+  var planSel = document.getElementById('old_plan_sel');
+  var loadBtn = document.getElementById('loadOldBtn');
+  var suggestDiv = document.getElementById('old_suggest');
+  if (!planSel.value) { loadBtn.disabled = true; suggestDiv.style.display = 'none'; return; }
+  loadBtn.disabled = false;
+  var idx = parseInt(planSel.options[planSel.selectedIndex].dataset.idx);
+  var item = OLD_DATA[idx];
+  if (item) {
+    document.getElementById('old_suggest_text').innerHTML =
+      '建議歸入：<strong>' + item.suggested_label + '</strong>　<span class="text-muted">' + item.suggest_reason + '</span>';
+    suggestDiv.style.display = '';
+  }
+}
+
+function loadOldPlan() {
+  var planSel = document.getElementById('old_plan_sel');
+  var idx = parseInt(planSel.options[planSel.selectedIndex].dataset.idx);
+  var item = OLD_DATA[idx];
+  if (!item) return;
+  var f = item.fields;
+
+  // 基本資料
+  document.getElementById('f_name').value = item.teacher_name;
+  if (item.subject) document.getElementById('f_subject').value = item.subject;
+  var courseName = f.course_name || f.community_name || '';
+  if (courseName && courseName !== '課程名稱' && courseName !== '社群主軸內容') {
+    document.getElementById('f_plan_name').value = courseName;
+    document.getElementById(item.plan_type === 'B' ? 'typeG' : 'typeC').checked = true;
+  }
+
+  // 選擇建議的子計畫並顯示對應欄位
+  var sub = item.suggested_sub_plan;
+  document.getElementById('f_sub_plan').value = sub;
+  showPlanSection();
+
+  // 預填各子計畫欄位
+  if (sub === 'a1') {
+    if (item.old_code) document.getElementById('a1_course_code').value = item.old_code;
+    // 課程類型
+    if (f.course_type) {
+      var typeMap = {'校訂必修':'required','多元選修':'elective','加深加廣':'advanced','其他':'other'};
+      var typeVal = typeMap[f.course_type] || '';
+      if (typeVal) { var r = document.querySelector('input[name="a1_course_type"][value="'+typeVal+'"]'); if(r) r.checked = true; }
+    }
+    // 核心素養勾選
+    if (f.core_competencies && f.core_competencies.length) {
+      f.core_competencies.forEach(function(c){
+        var el = document.querySelector('.a1-competency[value="'+c+'"]');
+        if (el) el.checked = true;
+      });
+    }
+    // 目標值
+    if (f.goal_description && !f.goal_description.includes('原113學年度')) {
+      document.getElementById('a1_goal').value = f.goal_description;
+    }
+    // 社群成員
+    if (f.community_members) document.getElementById('a1_community_members').value = f.community_members;
+    if (f.activity_description) document.getElementById('a1_community_desc').value = f.activity_description;
+  }
+
+  if (sub === 'b1-2') {
+    if (f.activity_description) document.getElementById('b12_implementation').value = f.activity_description;
+    if (f.work_items_text) document.getElementById('b12_community_strategy').value = f.work_items_text;
+    if (f.community_members) document.getElementById('b12_community_strategy').value += (f.community_members ? '\n社群成員：' + f.community_members : '');
+  }
+
+  if (sub === 'b2') {
+    if (f.community_members) document.getElementById('b2_members').value = f.community_members;
+    if (f.activity_description) document.getElementById('b2_strategy').value = f.activity_description;
+    if (f.course_name && f.course_name !== '課程名稱') document.getElementById('b2_course_name').value = f.course_name;
+  }
+
+  // 通用（a2, b1-1, b1-3, b3, c）
+  if (['a2','b1-1','b1-3','b3','c'].includes(sub)) {
+    if (f.goal_description) document.getElementById('gen_goal_desc').value = f.goal_description;
+    if (f.community_members) document.getElementById('gen_members').value = f.community_members;
+    if (f.activity_description) document.getElementById('gen_strategy').value = f.activity_description;
+  }
+
+  // 捲動到表單
+  document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // 顯示提示
+  document.getElementById('old_suggest').querySelector('.alert').className = 'alert alert-success py-2 mb-0 small';
+  document.getElementById('old_suggest_text').innerHTML = '✅ 已預填完成！請檢查並修改各欄位後再送出。';
 }
 
 async function submitForm() {
