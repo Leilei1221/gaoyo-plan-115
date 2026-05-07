@@ -201,7 +201,7 @@
           </div>
         </div>
 
-        <div class="col-12">
+        <div class="col-12" id="a1-gact-block">
           <label class="form-label fw-semibold">社群面規劃項目（可複選）</label>
           <div class="checkbox-grid">
             <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="計畫發展與檢討會議"><label class="form-check-label">計畫發展與檢討會議</label></div>
@@ -441,13 +441,16 @@ function updateNameLabel() {
 
 function toggleA1Fields() {
   var isCourse = document.getElementById('typeC').checked;
-  var courseBlocks = ['a1-course-block-type','a1-course-block-s1','a1-course-block-s2'];
-  courseBlocks.forEach(function(id) {
+  // 課程專屬欄位（社群時隱藏）
+  ['a1-course-block-type','a1-course-block-s1','a1-course-block-s2'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = isCourse ? '' : 'none';
   });
-  var commBlock = document.getElementById('a1-community-block');
-  if (commBlock) commBlock.style.display = isCourse ? 'none' : '';
+  // 社群專屬欄位（課程時隱藏）
+  ['a1-gact-block','a1-community-block'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = isCourse ? 'none' : '';
+  });
 }
 
 function getChecked(cls) {
