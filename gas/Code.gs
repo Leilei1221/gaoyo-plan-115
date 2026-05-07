@@ -12,44 +12,45 @@ var SHEETS = {
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
               "分支計畫序號","課程類型","核心素養","校本能力指標",
               "課程領域(上)","課程領域(下)","課程面活動","社群面活動",
-              "目標值","社群成員","社群活動描述","備註"]
+              "目標值","社群成員","社群活動描述","預期目標達成自評"]
   },
   "a2": {
     name: "A-2課綱課務推動",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","負責人員","實施規劃與策略","目標值","備註"]
+              "計畫目標","擬辦工作項目","規劃項目","目標值","預期目標達成自評","備註"]
   },
   "b1-1": {
     name: "B1-1數位核心小組",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","負責人員","實施規劃與策略","目標值","備註"]
+              "計畫目標","核心小組名單","114已完成項目","115擬完成項目","目標值","預期目標達成自評"]
   },
   "b1-2": {
     name: "B1-2數位課程與社群",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
               "課程類型","課程領域","課程目標","教學平台",
-              "課程實施規劃","社群發展策略","目標值","備註"]
+              "114已完成項目","115擬完成項目","補充說明","目標值","預期目標達成自評"]
   },
   "b1-3": {
     name: "B1-3數位遠距共授",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","負責人員","實施規劃與策略","目標值","備註"]
+              "學校屬性","貴校角色","課程領域","教學平台","課程內容",
+              "114已完成項目","115擬完成項目","目標值","預期目標達成自評"]
   },
   "b2": {
     name: "B2-SEL社會情緒學習",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
               "計畫目標","SEL核心小組","社群成員","社群工作項目",
-              "融入課程名稱","課程領域","實施策略","目標值","備註"]
+              "融入課程名稱","課程領域","實施策略","目標值","預期目標達成自評"]
   },
   "b3": {
     name: "B3-交通安全教育",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","負責人員","實施規劃與策略","目標值","備註"]
+              "計畫目標","實施規劃與策略","主要活動項目","目標值","預期目標達成自評"]
   },
   "c": {
     name: "C-學校特色發展",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","負責人員","實施規劃與策略","目標值","備註"]
+              "計畫目標","實施規劃與策略","主要活動項目","目標值","預期目標達成自評"]
   }
 };
 
@@ -148,7 +149,27 @@ function buildRow(subPlan, d) {
       d.goal_description || "",
       d.community_members || "",
       d.community_activity_desc || "",
+      d.achievement || ""
+    ]);
+  }
+  if (subPlan === "a2") {
+    return common.concat([
+      d.goal || "",
+      arrToStr(d.work_items),
+      arrToStr(d.plan_items),
+      d.goal_description || "",
+      d.achievement || "",
       d.notes || ""
+    ]);
+  }
+  if (subPlan === "b1-1") {
+    return common.concat([
+      d.goal || "",
+      d.members || "",
+      arrToStr(d.done114),
+      arrToStr(d.plan115),
+      d.goal_description || "",
+      d.achievement || ""
     ]);
   }
   if (subPlan === "b1-2") {
@@ -157,10 +178,24 @@ function buildRow(subPlan, d) {
       d.course_domain || "",
       d.course_goal || "",
       arrToStr(d.teaching_platforms),
+      arrToStr(d.done114),
+      arrToStr(d.plan115),
       d.implementation || "",
-      d.community_strategy || "",
       d.goal_description || "",
-      d.notes || ""
+      d.achievement || ""
+    ]);
+  }
+  if (subPlan === "b1-3") {
+    return common.concat([
+      d.school_type || "",
+      d.role || "",
+      d.course_domain || "",
+      arrToStr(d.teaching_platforms),
+      d.content || "",
+      arrToStr(d.done114),
+      arrToStr(d.plan115),
+      d.goal_description || "",
+      d.achievement || ""
     ]);
   }
   if (subPlan === "b2") {
@@ -173,17 +208,28 @@ function buildRow(subPlan, d) {
       d.course_domain || "",
       d.implementation_strategy || "",
       d.goal_description || "",
-      d.notes || ""
+      d.achievement || ""
     ]);
   }
-  // 通用（a2, b1-1, b1-3, b3, c）
-  return common.concat([
-    d.plan_goal || d.goal || "",
-    d.members || "",
-    d.strategy || "",
-    d.goal_description || "",
-    d.notes || ""
-  ]);
+  if (subPlan === "b3") {
+    return common.concat([
+      d.goal || "",
+      d.strategy || "",
+      arrToStr(d.activities),
+      d.goal_description || "",
+      d.achievement || ""
+    ]);
+  }
+  if (subPlan === "c") {
+    return common.concat([
+      d.goal || "",
+      d.strategy || "",
+      arrToStr(d.activities),
+      d.goal_description || "",
+      d.achievement || ""
+    ]);
+  }
+  return common;
 }
 
 function arrToStr(val) {

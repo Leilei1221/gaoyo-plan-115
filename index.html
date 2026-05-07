@@ -224,6 +224,15 @@
           <div class="hint mb-1">格式：1.對象（人數）2.主要活動數量：X場 3.內容：... 4.預期成效：...</div>
           <textarea id="a1_goal" class="form-control" rows="4" placeholder="請依格式填寫..."></textarea>
         </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="hint mb-1">115學年度申請階段如為新課程，請選「新辦計畫，無成果可比對」</div>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="a1_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="a1_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="a1_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
+        </div>
         <div class="col-12" id="a1-community-block">
           <div class="row g-3">
             <div class="col-12">
@@ -276,16 +285,39 @@
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">課程實施規劃與策略</label>
-          <textarea id="b12_implementation" class="form-control" rows="3" placeholder="說明如何將數位工具融入教學設計..."></textarea>
+          <label class="form-label fw-semibold">課程與社群發展之實施規劃與策略 — 114學年度已完成（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b12-done114" type="checkbox" value="依學校行政數位核心小組建議進行課程規劃"><label class="form-check-label">依學校行政數位核心小組建議進行課程規劃</label></div>
+            <div class="form-check"><input class="form-check-input b12-done114" type="checkbox" value="辦理或參加數位教學相關增能"><label class="form-check-label">辦理或參加數位教學相關增能</label></div>
+            <div class="form-check"><input class="form-check-input b12-done114" type="checkbox" value="進行社群共備與研討"><label class="form-check-label">進行社群共備與研討</label></div>
+            <div class="form-check"><input class="form-check-input b12-done114" type="checkbox" value="在班級中成立網路技術支援團隊"><label class="form-check-label">在班級中成立網路技術支援團隊</label></div>
+            <div class="form-check"><input class="form-check-input b12-done114" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">社群發展策略</label>
-          <textarea id="b12_community_strategy" class="form-control" rows="3" placeholder="社群如何共同研究數位教學、共備課程..."></textarea>
+          <label class="form-label fw-semibold">課程與社群發展之實施規劃與策略 — 115學年擬完成（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b12-plan115" type="checkbox" value="善用AI輔助跨領域課程模組設計"><label class="form-check-label">善用AI輔助跨領域課程模組設計</label></div>
+            <div class="form-check"><input class="form-check-input b12-plan115" type="checkbox" value="深化「四學」混成學習模式"><label class="form-check-label">深化「四學」混成學習模式</label></div>
+            <div class="form-check"><input class="form-check-input b12-plan115" type="checkbox" value="發展數據驅動的適性教學規劃"><label class="form-check-label">發展數據驅動的適性教學規劃</label></div>
+            <div class="form-check"><input class="form-check-input b12-plan115" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">補充說明</label>
+          <textarea id="b12_implementation" class="form-control" rows="2" placeholder="如有其他規劃或補充說明請填寫..."></textarea>
         </div>
         <div class="col-12">
           <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
           <textarea id="b12_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b12_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b12_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b12_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
         </div>
       </div>
     </div><!-- /b1-2 -->
@@ -343,36 +375,280 @@
           <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
           <textarea id="b2_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b2_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b2_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b2_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
+        </div>
       </div>
     </div><!-- /b2 -->
 
-    <!-- ── 六、通用欄位（A-2, B1-1, B1-3, B3, C）── -->
-    <div id="section-generic" class="plan-section">
-      <div class="plan-badge" id="genericBadge">通用子計畫</div>
-      <div id="genericAlert" class="alert alert-secondary small py-2 mb-3" style="display:none"></div>
+    <!-- ── 六、A-2 課綱課務推動計畫 ── -->
+    <div id="section-a2" class="plan-section">
+      <div class="plan-badge">A-2 課綱課務推動計畫</div>
       <div class="row g-3">
         <div class="col-12">
           <label class="form-label fw-semibold">計畫目標 / 說明 <span class="required-star">*</span></label>
-          <textarea id="gen_goal_desc" class="form-control" rows="3" placeholder="說明本子計畫的目標與核心內容..."></textarea>
+          <textarea id="a2_goal_desc" class="form-control" rows="3" placeholder="說明本子計畫的目標與核心內容..."></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">負責人員 / 核心小組</label>
-          <textarea id="gen_members" class="form-control" rows="2" placeholder="主要負責老師姓名、科別..."></textarea>
+          <label class="form-label fw-semibold">擬列入本計畫辦理之工作項目（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input a2-work" type="checkbox" value="課程發展委員會執行與優化"><label class="form-check-label">課程發展委員會執行與優化</label></div>
+            <div class="form-check"><input class="form-check-input a2-work" type="checkbox" value="學生課程諮詢輔導執行與優化"><label class="form-check-label">學生課程諮詢輔導執行與優化</label></div>
+            <div class="form-check"><input class="form-check-input a2-work" type="checkbox" value="學生自主學習執行與優化（必辦）"><label class="form-check-label">學生自主學習執行與優化（必辦）</label></div>
+            <div class="form-check"><input class="form-check-input a2-work" type="checkbox" value="學生學習歷程檔案執行與優化"><label class="form-check-label">學生學習歷程檔案執行與優化</label></div>
+            <div class="form-check"><input class="form-check-input a2-work" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">實施規劃與策略</label>
-          <textarea id="gen_strategy" class="form-control" rows="4" placeholder="說明本子計畫的具體實施方式、活動規劃..."></textarea>
+          <label class="form-label fw-semibold">規劃項目（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="1.計畫執行檢核會議"><label class="form-check-label">1.計畫執行檢核會議</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="2.課發會會議"><label class="form-check-label">2.課發會會議</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="3.核心小組會議"><label class="form-check-label">3.核心小組會議</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="4.增能工作坊"><label class="form-check-label">4.增能工作坊</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="5.講座"><label class="form-check-label">5.講座</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="6.校本專家學者諮詢輔導會議"><label class="form-check-label">6.校本專家學者諮詢輔導會議</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="7.區域聯合諮詢輔導會議"><label class="form-check-label">7.區域聯合諮詢輔導會議</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="8.區域分享會"><label class="form-check-label">8.區域分享會</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="9.校際交流"><label class="form-check-label">9.校際交流</label></div>
+            <div class="form-check"><input class="form-check-input a2-plan" type="checkbox" value="10.其他"><label class="form-check-label">10.其他</label></div>
+          </div>
         </div>
         <div class="col-12">
           <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
-          <textarea id="gen_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+          <textarea id="a2_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="a2_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="a2_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="a2_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
         </div>
         <div class="col-12">
           <label class="form-label fw-semibold">備註</label>
-          <textarea id="gen_notes" class="form-control" rows="2" placeholder="其他補充說明..."></textarea>
+          <textarea id="a2_notes" class="form-control" rows="2" placeholder="其他補充說明..."></textarea>
         </div>
       </div>
-    </div><!-- /generic -->
+    </div><!-- /a2 -->
+
+    <!-- ── 七、B1-1 數位學習發展核心小組計畫 ── -->
+    <div id="section-b1-1" class="plan-section">
+      <div class="plan-badge">B1-1 數位學習發展核心小組計畫</div>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">計畫目標 / 說明 <span class="required-star">*</span></label>
+          <textarea id="b11_goal_desc" class="form-control" rows="3" placeholder="說明數位核心小組的目標與任務..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">核心小組名單</label>
+          <textarea id="b11_members" class="form-control" rows="2" placeholder="姓名（科別）、姓名（科別）..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">實施規劃與策略 — 114學年度已完成（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b11-done114" type="checkbox" value="規劃學校階段性數位轉型策略"><label class="form-check-label">規劃學校階段性數位轉型策略</label></div>
+            <div class="form-check"><input class="form-check-input b11-done114" type="checkbox" value="擇選合適數位學習平臺"><label class="form-check-label">擇選合適數位學習平臺</label></div>
+            <div class="form-check"><input class="form-check-input b11-done114" type="checkbox" value="協助規劃教師數位學習增能"><label class="form-check-label">協助規劃教師數位學習增能</label></div>
+            <div class="form-check"><input class="form-check-input b11-done114" type="checkbox" value="確保校內教師都完成A1、A2課程培訓"><label class="form-check-label">確保校內教師完成A1、A2課程培訓</label></div>
+            <div class="form-check"><input class="form-check-input b11-done114" type="checkbox" value="訂定載具使用規範"><label class="form-check-label">訂定載具使用規範</label></div>
+            <div class="form-check"><input class="form-check-input b11-done114" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">實施規劃與策略 — 115學年擬完成（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b11-plan115" type="checkbox" value="定期召開數位轉型會議"><label class="form-check-label">定期召開數位轉型會議</label></div>
+            <div class="form-check"><input class="form-check-input b11-plan115" type="checkbox" value="擬定校本數位倫理細則"><label class="form-check-label">擬定校本數位倫理細則</label></div>
+            <div class="form-check"><input class="form-check-input b11-plan115" type="checkbox" value="擇選與維護學校統一數位平台"><label class="form-check-label">擇選與維護學校統一數位平台</label></div>
+            <div class="form-check"><input class="form-check-input b11-plan115" type="checkbox" value="建立跨處室數位行政減載機制"><label class="form-check-label">建立跨處室數位行政減載機制</label></div>
+            <div class="form-check"><input class="form-check-input b11-plan115" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <textarea id="b11_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b11_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b11_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b11_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /b1-1 -->
+
+    <!-- ── 八、B1-3 數位遠距共授課程發展計畫 ── -->
+    <div id="section-b1-3" class="plan-section">
+      <div class="plan-badge">B1-3 數位遠距共授課程發展計畫</div>
+      <div class="alert alert-secondary small py-2">
+        <i class="bi bi-info-circle me-1"></i>B1-3 為跨校遠距共授課程，如無此類課程可不填此項。
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">學校屬性</label>
+          <div class="d-flex gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_school_type" value="115數位前導學校"><label class="form-check-label">115數位前導學校</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_school_type" value="非數位前導學校"><label class="form-check-label">非數位前導學校</label></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">貴校在此課程的角色</label>
+          <div class="d-flex gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_role" value="開課學校"><label class="form-check-label">開課學校</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_role" value="合作學校"><label class="form-check-label">合作學校</label></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">課程領域</label>
+          <div class="d-flex gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value="單科"><label class="form-check-label">單科</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value="跨科"><label class="form-check-label">跨科</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value="跨領域"><label class="form-check-label">跨領域</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">課程運用之教學平台（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="因材網"><label class="form-check-label">因材網</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="酷課雲"><label class="form-check-label">酷課雲</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="E-Want"><label class="form-check-label">E-Want</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="Hahow"><label class="form-check-label">Hahow</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="均一教育平台"><label class="form-check-label">均一教育平台</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="Google Workspace"><label class="form-check-label">Google Workspace</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="Microsoft Teams"><label class="form-check-label">Microsoft Teams</label></div>
+            <div class="form-check"><input class="form-check-input b13-platform" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">課程內容說明</label>
+          <textarea id="b13_content" class="form-control" rows="3" placeholder="簡述遠距共授課程的主要內容..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">實施規劃與策略 — 114學年度已完成（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b13-done114" type="checkbox" value="進行跨校共備，發展跨校遠距課程"><label class="form-check-label">進行跨校共備，發展跨校遠距課程</label></div>
+            <div class="form-check"><input class="form-check-input b13-done114" type="checkbox" value="辦理或參加數位教學相關增能"><label class="form-check-label">辦理或參加數位教學相關增能</label></div>
+            <div class="form-check"><input class="form-check-input b13-done114" type="checkbox" value="進行跨校遠距社群共備與研討"><label class="form-check-label">進行跨校遠距社群共備與研討</label></div>
+            <div class="form-check"><input class="form-check-input b13-done114" type="checkbox" value="根據遠距課程性質設定班級經營"><label class="form-check-label">根據遠距課程性質設定班級經營</label></div>
+            <div class="form-check"><input class="form-check-input b13-done114" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">實施規劃與策略 — 115學年擬完成（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b13-plan115" type="checkbox" value="建立跨校常態化專業學習社群及共備會議"><label class="form-check-label">建立跨校常態化專業學習社群及共備會議</label></div>
+            <div class="form-check"><input class="form-check-input b13-plan115" type="checkbox" value="運用AI工具優化遠距課程設計與評量"><label class="form-check-label">運用AI工具優化遠距課程設計與評量</label></div>
+            <div class="form-check"><input class="form-check-input b13-plan115" type="checkbox" value="深化與維護異地同步之「四學」互動模式"><label class="form-check-label">深化與維護異地同步之「四學」互動模式</label></div>
+            <div class="form-check"><input class="form-check-input b13-plan115" type="checkbox" value="其他"><label class="form-check-label">其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <textarea id="b13_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /b1-3 -->
+
+    <!-- ── 九、B3 交通安全教育發展子計畫 ── -->
+    <div id="section-b3" class="plan-section">
+      <div class="plan-badge">B3 交通安全教育發展子計畫【新增】</div>
+      <div class="alert alert-warning small py-2">
+        <i class="bi bi-info-circle me-1"></i>B3 為 115 年度新增子計畫，請說明交通安全教育融入課程或活動的規劃。
+      </div>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">計畫目標 <span class="required-star">*</span></label>
+          <textarea id="b3_goal_desc" class="form-control" rows="3" placeholder="說明本子計畫推動交通安全教育的核心目標..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">實施規劃與策略</label>
+          <textarea id="b3_strategy" class="form-control" rows="4" placeholder="說明具體實施方式、課程融入方式..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">主要活動項目（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="1.計畫運作檢視會議"><label class="form-check-label">1.計畫運作檢視會議</label></div>
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="2.主題社群會議"><label class="form-check-label">2.主題社群會議</label></div>
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="3.增能工作坊"><label class="form-check-label">3.增能工作坊</label></div>
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="4.講座"><label class="form-check-label">4.講座</label></div>
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="5.戶外踏查"><label class="form-check-label">5.戶外踏查</label></div>
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="6.實作課程"><label class="form-check-label">6.實作課程</label></div>
+            <div class="form-check"><input class="form-check-input b3-activity" type="checkbox" value="7.其他"><label class="form-check-label">7.其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <textarea id="b3_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="b3_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b3_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b3_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /b3 -->
+
+    <!-- ── 十、C 學校特色發展與適性學習社區發展計畫 ── -->
+    <div id="section-c" class="plan-section">
+      <div class="plan-badge">C 學校特色發展與適性學習社區發展計畫</div>
+      <div class="alert alert-secondary small py-2">
+        <i class="bi bi-info-circle me-1"></i>C 為選辦項目，請依學校特色填寫。
+      </div>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">計畫目標 <span class="required-star">*</span></label>
+          <textarea id="c_goal_desc" class="form-control" rows="3" placeholder="說明本子計畫的目標與核心內容..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">實施規劃與策略</label>
+          <textarea id="c_strategy" class="form-control" rows="4" placeholder="說明具體實施方式、活動規劃..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">主要活動項目（可複選）</label>
+          <div class="checkbox-grid mt-1">
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="1.計畫運作檢視會議"><label class="form-check-label">1.計畫運作檢視會議</label></div>
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="2.主題社群會議"><label class="form-check-label">2.主題社群會議</label></div>
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="3.增能工作坊"><label class="form-check-label">3.增能工作坊</label></div>
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="4.講座"><label class="form-check-label">4.講座</label></div>
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="5.戶外踏查"><label class="form-check-label">5.戶外踏查</label></div>
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="6.實作課程"><label class="form-check-label">6.實作課程</label></div>
+            <div class="form-check"><input class="form-check-input c-activity" type="checkbox" value="7.其他"><label class="form-check-label">7.其他</label></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <textarea id="c_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">預期目標達成自評</label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_achievement" value="已達成"><label class="form-check-label">已達成</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_achievement" value="待精進"><label class="form-check-label">待精進</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_achievement" value="新辦計畫，無成果可比對"><label class="form-check-label">新辦計畫，無成果可比對</label></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /c -->
 
     <!-- ── 送出按鈕 ── -->
     <div id="submitArea" class="d-none mt-4 pt-3 border-top">
@@ -398,12 +674,10 @@
 // ── 請將此處替換為您的 GAS Web App URL ──
 var GAS_URL = "https://script.google.com/macros/s/AKfycbxjvTPlvp0TGiIKXhZRcGfItKUlMZErtG7W93M-R5T9OIpUIRSqrF0F9AEuCxprYXE3Tw/exec";
 
-var GENERIC_INFO = {
-  "a2":   { badge: "A-2 課綱課務推動計畫",      alert: "" },
-  "b1-1": { badge: "B1-1 數位學習發展核心小組",  alert: "" },
-  "b1-3": { badge: "B1-3 數位遠距共授課程",      alert: "B1-3 為跨校遠距共授課程，如無此類課程可不填此項。" },
-  "b3":   { badge: "B3 交通安全教育（新增）",    alert: "B3 為 115 年度新增子計畫，請說明交通安全教育融入課程或活動的規劃。" },
-  "c":    { badge: "C 學校特色發展計畫",          alert: "C 為選辦項目，請依學校特色填寫。" }
+var SECTION_MAP = {
+  'a1': 'section-a1', 'a2': 'section-a2',
+  'b1-1': 'section-b1-1', 'b1-2': 'section-b1-2', 'b1-3': 'section-b1-3',
+  'b2': 'section-b2', 'b3': 'section-b3', 'c': 'section-c'
 };
 
 function showPlanSection() {
@@ -411,20 +685,10 @@ function showPlanSection() {
   document.querySelectorAll('.plan-section').forEach(function(el) { el.classList.remove('active'); });
   document.getElementById('submitArea').classList.add('d-none');
   if (!val) return;
-
-  if (val === 'a1') {
-    document.getElementById('section-a1').classList.add('active');
-  } else if (val === 'b1-2') {
-    document.getElementById('section-b1-2').classList.add('active');
-  } else if (val === 'b2') {
-    document.getElementById('section-b2').classList.add('active');
-  } else if (GENERIC_INFO[val]) {
-    var info = GENERIC_INFO[val];
-    document.getElementById('genericBadge').textContent = info.badge;
-    var alertEl = document.getElementById('genericAlert');
-    if (info.alert) { alertEl.innerHTML = '<i class="bi bi-info-circle me-1"></i>' + info.alert; alertEl.style.display = ''; }
-    else { alertEl.style.display = 'none'; }
-    document.getElementById('section-generic').classList.add('active');
+  var sectionId = SECTION_MAP[val];
+  if (sectionId) {
+    document.getElementById(sectionId).classList.add('active');
+    if (val === 'a1') toggleA1Fields();
   }
   document.getElementById('submitArea').classList.remove('d-none');
   setTimeout(function() {
@@ -477,7 +741,7 @@ function buildPayload() {
       course_code: v('a1_course_code'),
       course_type: getRadio('a1_course_type'),
       core_competencies: getChecked('a1-competency'),
-      ability_indicators: getChecked('a1-ability'),
+      ability_indicators: getChecked('a1-ability').join('、'),
       domain_s1: getRadio('a1_domain_s1'),
       domain_s2: getRadio('a1_domain_s2'),
       course_activities: getChecked('a1-cact'),
@@ -485,6 +749,27 @@ function buildPayload() {
       goal_description: v('a1_goal'),
       community_members: v('a1_community_members'),
       community_activity_desc: v('a1_community_desc'),
+      achievement: getRadio('a1_achievement'),
+    });
+  }
+  if (sub === 'a2') {
+    return Object.assign(base, {
+      goal: v('a2_goal_desc'),
+      work_items: getChecked('a2-work'),
+      plan_items: getChecked('a2-plan'),
+      goal_description: v('a2_goal'),
+      achievement: getRadio('a2_achievement'),
+      notes: v('a2_notes'),
+    });
+  }
+  if (sub === 'b1-1') {
+    return Object.assign(base, {
+      goal: v('b11_goal_desc'),
+      members: v('b11_members'),
+      done114: getChecked('b11-done114'),
+      plan115: getChecked('b11-plan115'),
+      goal_description: v('b11_goal'),
+      achievement: getRadio('b11_achievement'),
     });
   }
   if (sub === 'b1-2') {
@@ -493,9 +778,24 @@ function buildPayload() {
       course_domain: v('b12_course_domain'),
       course_goal: v('b12_course_goal'),
       teaching_platforms: getChecked('b12-platform'),
+      done114: getChecked('b12-done114'),
+      plan115: getChecked('b12-plan115'),
       implementation: v('b12_implementation'),
-      community_strategy: v('b12_community_strategy'),
       goal_description: v('b12_goal'),
+      achievement: getRadio('b12_achievement'),
+    });
+  }
+  if (sub === 'b1-3') {
+    return Object.assign(base, {
+      school_type: getRadio('b13_school_type'),
+      role: getRadio('b13_role'),
+      course_domain: getRadio('b13_domain'),
+      teaching_platforms: getChecked('b13-platform'),
+      content: v('b13_content'),
+      done114: getChecked('b13-done114'),
+      plan115: getChecked('b13-plan115'),
+      goal_description: v('b13_goal'),
+      achievement: getRadio('b13_achievement'),
     });
   }
   if (sub === 'b2') {
@@ -508,16 +808,28 @@ function buildPayload() {
       course_domain: v('b2_course_domain'),
       implementation_strategy: v('b2_strategy'),
       goal_description: v('b2_goal'),
+      achievement: getRadio('b2_achievement'),
     });
   }
-  // 通用
-  return Object.assign(base, {
-    goal: v('gen_goal_desc'),
-    members: v('gen_members'),
-    strategy: v('gen_strategy'),
-    goal_description: v('gen_goal'),
-    notes: v('gen_notes'),
-  });
+  if (sub === 'b3') {
+    return Object.assign(base, {
+      goal: v('b3_goal_desc'),
+      strategy: v('b3_strategy'),
+      activities: getChecked('b3-activity'),
+      goal_description: v('b3_goal'),
+      achievement: getRadio('b3_achievement'),
+    });
+  }
+  if (sub === 'c') {
+    return Object.assign(base, {
+      goal: v('c_goal_desc'),
+      strategy: v('c_strategy'),
+      activities: getChecked('c-activity'),
+      goal_description: v('c_goal'),
+      achievement: getRadio('c_achievement'),
+    });
+  }
+  return base;
 }
 
 function validate(payload) {
@@ -529,6 +841,7 @@ function validate(payload) {
   if (payload.sub_plan_type === 'b2' && !payload.plan_goal) { alert('B2 請填寫計畫目標'); return false; }
   return true;
 }
+
 
 // ── 舊計畫預填邏輯 ─────────────────────────────────────────
 var OLD_DATA = [];
@@ -610,9 +923,8 @@ function loadOldPlan() {
     if (item.old_code) document.getElementById('a1_course_code').value = item.old_code;
     // 課程類型
     if (f.course_type) {
-      var typeMap = {'校訂必修':'required','多元選修':'elective','加深加廣':'advanced','其他':'other'};
-      var typeVal = typeMap[f.course_type] || '';
-      if (typeVal) { var r = document.querySelector('input[name="a1_course_type"][value="'+typeVal+'"]'); if(r) r.checked = true; }
+      var r = document.querySelector('input[name="a1_course_type"][value="'+f.course_type+'"]');
+      if (r) r.checked = true;
     }
     // 核心素養勾選
     if (f.core_competencies && f.core_competencies.length) {
@@ -668,11 +980,31 @@ function loadOldPlan() {
     if (f.course_name && f.course_name !== '課程名稱') document.getElementById('b2_course_name').value = f.course_name;
   }
 
-  // 通用（a2, b1-1, b1-3, b3, c）
-  if (['a2','b1-1','b1-3','b3','c'].includes(sub)) {
-    if (f.goal_description) document.getElementById('gen_goal_desc').value = f.goal_description;
-    if (f.community_members) document.getElementById('gen_members').value = f.community_members;
-    if (f.activity_description) document.getElementById('gen_strategy').value = f.activity_description;
+  // A-2
+  if (sub === 'a2') {
+    if (f.goal_description) document.getElementById('a2_goal_desc').value = f.goal_description;
+    if (f.activity_description) document.getElementById('a2_goal').value = f.activity_description;
+  }
+  // B1-1
+  if (sub === 'b1-1') {
+    if (f.goal_description) document.getElementById('b11_goal_desc').value = f.goal_description;
+    if (f.community_members) document.getElementById('b11_members').value = f.community_members;
+    if (f.activity_description) document.getElementById('b11_goal').value = f.activity_description;
+  }
+  // B1-3
+  if (sub === 'b1-3') {
+    if (f.goal_description) document.getElementById('b13_goal').value = f.goal_description;
+    if (f.activity_description) document.getElementById('b13_content').value = f.activity_description;
+  }
+  // B3
+  if (sub === 'b3') {
+    if (f.goal_description) document.getElementById('b3_goal_desc').value = f.goal_description;
+    if (f.activity_description) document.getElementById('b3_strategy').value = f.activity_description;
+  }
+  // C
+  if (sub === 'c') {
+    if (f.goal_description) document.getElementById('c_goal_desc').value = f.goal_description;
+    if (f.activity_description) document.getElementById('c_strategy').value = f.activity_description;
   }
 
   // 捲動到表單
