@@ -600,6 +600,28 @@ function loadOldPlan() {
         if (el) el.checked = true;
       });
     }
+    // 校本能力指標勾選（字串以、或,分隔）
+    if (f.ability_indicators) {
+      var abilities = f.ability_indicators.split(/[、,，\s]+/).map(function(s){ return s.trim(); });
+      abilities.forEach(function(a){
+        var el = document.querySelector('.a1-ability[value="'+a+'"]');
+        if (el) el.checked = true;
+      });
+    }
+    // 課程面活動勾選
+    if (f.course_activities && f.course_activities.length) {
+      f.course_activities.forEach(function(a){
+        var el = document.querySelector('.a1-cact[value="'+a+'"]');
+        if (el) el.checked = true;
+      });
+    }
+    // 社群面活動勾選（自主管理檢核 → work_items）
+    if (f.work_items && f.work_items.length) {
+      f.work_items.forEach(function(w){
+        var el = document.querySelector('.a1-gact[value="'+w+'"]');
+        if (el) el.checked = true;
+      });
+    }
     // 目標值
     if (f.goal_description && !f.goal_description.includes('原113學年度')) {
       document.getElementById('a1_goal').value = f.goal_description;
