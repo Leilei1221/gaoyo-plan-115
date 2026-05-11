@@ -22,35 +22,35 @@ var SHEETS = {
   "b1-1": {
     name: "B1-1數位核心小組",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","核心小組名單","114已完成項目","115擬完成項目","目標值","預期目標達成自評"]
+              "計畫目標","核心小組名單","114已完成項目","115擬完成項目","目標值","預期目標達成自評","輔助圖片"]
   },
   "b1-2": {
     name: "B1-2數位課程與社群",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
               "課程類型","課程領域","課程目標","教學平台",
-              "114已完成項目","115擬完成項目","補充說明","目標值","預期目標達成自評"]
+              "114已完成項目","115擬完成項目","補充說明","目標值","預期目標達成自評","輔助圖片"]
   },
   "b1-3": {
     name: "B1-3數位遠距共授",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
               "學校屬性","貴校角色","課程領域","教學平台","課程內容",
-              "114已完成項目","115擬完成項目","目標值","預期目標達成自評"]
+              "114已完成項目","115擬完成項目","目標值","預期目標達成自評","輔助圖片"]
   },
   "b2": {
     name: "B2-SEL社會情緒學習",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
               "計畫目標","SEL核心小組","社群成員","社群工作項目",
-              "融入課程名稱","課程領域","實施策略","目標值","預期目標達成自評"]
+              "融入課程名稱","課程領域","實施策略","目標值","預期目標達成自評","輔助圖片"]
   },
   "b3": {
     name: "B3-交通安全教育",
     headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","實施規劃與策略","主要活動項目","目標值","預期目標達成自評"]
+              "計畫目標","實施規劃與策略","主要活動項目","目標值","預期目標達成自評","輔助圖片"]
   },
   "c": {
     name: "C-學校特色發展",
-    headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱",
-              "計畫目標","實施規劃與策略","主要活動項目","目標值","預期目標達成自評"]
+    headers: ["時間戳記","姓名","科別","計畫名稱類型","計畫名稱","計畫類型",
+              "計畫目標","實施規劃與策略","主要活動項目","目標值","預期目標達成自評","輔助圖片"]
   }
 };
 
@@ -169,7 +169,8 @@ function buildRow(subPlan, d) {
       arrToStr(d.done114),
       arrToStr(d.plan115),
       d.goal_description || "",
-      d.achievement || ""
+      d.achievement || "",
+      saveImages(d.images)
     ]);
   }
   if (subPlan === "b1-2") {
@@ -182,7 +183,8 @@ function buildRow(subPlan, d) {
       arrToStr(d.plan115),
       d.implementation || "",
       d.goal_description || "",
-      d.achievement || ""
+      d.achievement || "",
+      saveImages(d.images)
     ]);
   }
   if (subPlan === "b1-3") {
@@ -195,7 +197,8 @@ function buildRow(subPlan, d) {
       arrToStr(d.done114),
       arrToStr(d.plan115),
       d.goal_description || "",
-      d.achievement || ""
+      d.achievement || "",
+      saveImages(d.images)
     ]);
   }
   if (subPlan === "b2") {
@@ -208,7 +211,8 @@ function buildRow(subPlan, d) {
       d.course_domain || "",
       d.implementation_strategy || "",
       d.goal_description || "",
-      d.achievement || ""
+      d.achievement || "",
+      saveImages(d.images)
     ]);
   }
   if (subPlan === "b3") {
@@ -217,16 +221,19 @@ function buildRow(subPlan, d) {
       d.strategy || "",
       arrToStr(d.activities),
       d.goal_description || "",
-      d.achievement || ""
+      d.achievement || "",
+      saveImages(d.images)
     ]);
   }
   if (subPlan === "c") {
     return common.concat([
+      d.plan_subtype || "",
       d.goal || "",
       d.strategy || "",
       arrToStr(d.activities),
       d.goal_description || "",
-      d.achievement || ""
+      d.achievement || "",
+      saveImages(d.images)
     ]);
   }
   return common;
@@ -236,6 +243,34 @@ function arrToStr(val) {
   if (!val) return "";
   if (Array.isArray(val)) return val.join("、");
   return String(val);
+}
+
+// 將 base64 圖片陣列存入 Google Drive，回傳圖片連結字串（以「、」分隔）
+function saveImages(images) {
+  if (!images || images.length === 0) return "";
+  try {
+    var folder;
+    var folders = DriveApp.getFoldersByName("115優高計畫輔助圖片");
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder("115優高計畫輔助圖片");
+    }
+    var urls = [];
+    images.forEach(function(img) {
+      if (!img || !img.data) return;
+      var base64Data = img.data.replace(/^data:[^;]+;base64,/, "");
+      var decoded = Utilities.base64Decode(base64Data);
+      var blob = Utilities.newBlob(decoded, "image/jpeg", img.name || "image.jpg");
+      var file = folder.createFile(blob);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      urls.push(file.getUrl());
+    });
+    return urls.join("、");
+  } catch(e) {
+    Logger.log("saveImages error: " + e);
+    return "";
+  }
 }
 
 // ── 初始化：第一次執行時建立所有 Sheet ──────────────────────

@@ -92,7 +92,25 @@
       </div>
       <div class="col-md-4">
         <label class="form-label fw-semibold">科別 <span class="required-star">*</span></label>
-        <input type="text" id="f_subject" class="form-control" placeholder="如：健康護理、英文、數學" required>
+        <select id="f_subject" class="form-select" required>
+          <option value="">-- 請選擇科別 --</option>
+          <option>國文科</option>
+          <option>英文科</option>
+          <option>數學科</option>
+          <option>地理科</option>
+          <option>歷史科</option>
+          <option>公民科</option>
+          <option>物理科</option>
+          <option>化學科</option>
+          <option>地球科學</option>
+          <option>家政科</option>
+          <option>體育科</option>
+          <option>生活科技科</option>
+          <option>健康與護理</option>
+          <option>資訊科</option>
+          <option>輔導科</option>
+          <option>國防通識</option>
+        </select>
       </div>
       <div class="col-md-4">
         <label class="form-label fw-semibold">
@@ -616,6 +634,15 @@
       </div>
       <div class="row g-3">
         <div class="col-12">
+          <label class="form-label fw-semibold">C 計畫細項 <span class="required-star">*</span></label>
+          <div class="d-flex flex-wrap gap-3 mt-1">
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_plan_subtype" value="學校特色發展（選辦）"><label class="form-check-label">學校特色發展（選辦）</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_plan_subtype" value="七大主題（選辦）"><label class="form-check-label">七大主題（選辦）</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_plan_subtype" value="深度學習NPDL發展（選辦）"><label class="form-check-label">深度學習NPDL發展（選辦）</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="c_plan_subtype" value="適性學習社區發展（均質化）"><label class="form-check-label">適性學習社區發展（均質化）</label></div>
+          </div>
+        </div>
+        <div class="col-12">
           <label class="form-label fw-semibold">計畫目標 <span class="required-star">*</span></label>
           <textarea id="c_goal_desc" class="form-control" rows="3" placeholder="說明本子計畫的目標與核心內容..."></textarea>
         </div>
@@ -650,6 +677,17 @@
       </div>
     </div><!-- /c -->
 
+    <!-- ── 圖片上傳（B、C 系列）── -->
+    <div id="imageUploadSection" style="display:none" class="mt-4 pt-3 border-top">
+      <div class="section-title"><i class="bi bi-image me-1"></i>上傳輔助說明圖片（選填）</div>
+      <p class="hint mb-2">可上傳計畫相關照片或圖表作為補充說明，最多 3 張，每張限 5MB 以內。圖片將儲存至雲端供審核參考。</p>
+      <label class="btn btn-outline-secondary btn-sm mb-2" id="imgUploadBtn">
+        <i class="bi bi-upload me-1"></i>選擇圖片
+        <input type="file" id="imageInput" accept="image/*" multiple style="display:none" onchange="handleImageSelect(this)">
+      </label>
+      <div id="imagePreview" class="d-flex flex-wrap gap-2 mt-1"></div>
+    </div>
+
     <!-- ── 送出按鈕 ── -->
     <div id="submitArea" class="d-none mt-4 pt-3 border-top">
       <div class="d-flex justify-content-between align-items-center">
@@ -679,16 +717,26 @@ var SECTION_MAP = {
   'b1-1': 'section-b1-1', 'b1-2': 'section-b1-2', 'b1-3': 'section-b1-3',
   'b2': 'section-b2', 'b3': 'section-b3', 'c': 'section-c'
 };
+var BC_PLANS = ['b1-1', 'b1-2', 'b1-3', 'b2', 'b3', 'c'];
 
 function showPlanSection() {
   var val = document.getElementById('f_sub_plan').value;
   document.querySelectorAll('.plan-section').forEach(function(el) { el.classList.remove('active'); });
   document.getElementById('submitArea').classList.add('d-none');
-  if (!val) return;
+  var imgSection = document.getElementById('imageUploadSection');
+  if (!val) { imgSection.style.display = 'none'; return; }
   var sectionId = SECTION_MAP[val];
   if (sectionId) {
     document.getElementById(sectionId).classList.add('active');
     if (val === 'a1') toggleA1Fields();
+  }
+  // 圖片上傳區塊：B / C 系列才顯示
+  if (BC_PLANS.indexOf(val) >= 0) {
+    imgSection.style.display = '';
+  } else {
+    imgSection.style.display = 'none';
+    selectedImages = [];
+    renderImagePreviews();
   }
   document.getElementById('submitArea').classList.remove('d-none');
   setTimeout(function() {
@@ -785,6 +833,7 @@ function buildPayload() {
       plan115: getChecked('b11-plan115'),
       goal_description: v('b11_goal'),
       achievement: getRadio('b11_achievement'),
+      images: selectedImages,
     });
   }
   if (sub === 'b1-2') {
@@ -798,6 +847,7 @@ function buildPayload() {
       implementation: v('b12_implementation'),
       goal_description: v('b12_goal'),
       achievement: getRadio('b12_achievement'),
+      images: selectedImages,
     });
   }
   if (sub === 'b1-3') {
@@ -811,6 +861,7 @@ function buildPayload() {
       plan115: getChecked('b13-plan115'),
       goal_description: v('b13_goal'),
       achievement: getRadio('b13_achievement'),
+      images: selectedImages,
     });
   }
   if (sub === 'b2') {
@@ -824,6 +875,7 @@ function buildPayload() {
       implementation_strategy: v('b2_strategy'),
       goal_description: v('b2_goal'),
       achievement: getRadio('b2_achievement'),
+      images: selectedImages,
     });
   }
   if (sub === 'b3') {
@@ -833,15 +885,18 @@ function buildPayload() {
       activities: getChecked('b3-activity'),
       goal_description: v('b3_goal'),
       achievement: getRadio('b3_achievement'),
+      images: selectedImages,
     });
   }
   if (sub === 'c') {
     return Object.assign(base, {
+      plan_subtype: getRadio('c_plan_subtype'),
       goal: v('c_goal_desc'),
       strategy: v('c_strategy'),
       activities: getChecked('c-activity'),
       goal_description: v('c_goal'),
       achievement: getRadio('c_achievement'),
+      images: selectedImages,
     });
   }
   return base;
@@ -849,11 +904,12 @@ function buildPayload() {
 
 function validate(payload) {
   if (!payload.name) { alert('請填寫姓名'); return false; }
-  if (!payload.subject) { alert('請填寫科別'); return false; }
+  if (!payload.subject) { alert('請選擇科別'); return false; }
   if (!payload.plan_name) { alert('請填寫課程名稱或社群名稱'); return false; }
   if (!payload.sub_plan_type) { alert('請選擇子計畫'); return false; }
   if (!payload.goal_description) { alert('請填寫整體預期達成目標值'); return false; }
   if (payload.sub_plan_type === 'b2' && !payload.plan_goal) { alert('B2 請填寫計畫目標'); return false; }
+  if (payload.sub_plan_type === 'c' && !payload.plan_subtype) { alert('C計畫請選擇細項類別'); return false; }
   return true;
 }
 
@@ -1027,6 +1083,69 @@ function loadOldPlan() {
   // 顯示提示
   document.getElementById('old_suggest').querySelector('.alert').className = 'alert alert-success py-2 mb-0 small';
   document.getElementById('old_suggest_text').innerHTML = '✅ 已預填完成！請檢查並修改各欄位後再送出。';
+}
+
+// ── 圖片上傳處理 ────────────────────────────────────────────
+var selectedImages = []; // [{name, data(base64)}]
+
+function handleImageSelect(input) {
+  var files = Array.from(input.files);
+  var remaining = 3 - selectedImages.length;
+  if (files.length > remaining) {
+    alert('最多上傳 3 張，目前還可以加 ' + remaining + ' 張');
+    files = files.slice(0, remaining);
+  }
+  files.forEach(function(file) {
+    if (file.size > 5 * 1024 * 1024) {
+      alert(file.name + ' 超過 5MB 限制，將略過');
+      return;
+    }
+    compressAndAdd(file);
+  });
+  input.value = '';
+}
+
+function compressAndAdd(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var maxW = 1200;
+      var scale = Math.min(1, maxW / img.width);
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      var base64 = canvas.toDataURL('image/jpeg', 0.82);
+      selectedImages.push({ name: file.name.replace(/[^\w.\-]/g, '_'), data: base64 });
+      renderImagePreviews();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderImagePreviews() {
+  var container = document.getElementById('imagePreview');
+  container.innerHTML = '';
+  selectedImages.forEach(function(img, i) {
+    var div = document.createElement('div');
+    div.className = 'position-relative d-inline-block';
+    div.innerHTML =
+      '<img src="' + img.data + '" style="height:80px;border-radius:6px;border:1px solid #dee2e6;object-fit:cover">' +
+      '<button type="button" onclick="removeImage(' + i + ')" ' +
+        'class="btn btn-danger position-absolute top-0 end-0 p-0 px-1 lh-1" ' +
+        'style="font-size:.65rem;border-radius:0 6px 0 4px">✕</button>' +
+      '<div class="text-muted mt-1" style="font-size:.7rem;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + img.name + '</div>';
+    container.appendChild(div);
+  });
+  var btn = document.getElementById('imgUploadBtn');
+  if (btn) btn.style.display = selectedImages.length >= 3 ? 'none' : '';
+}
+
+function removeImage(i) {
+  selectedImages.splice(i, 1);
+  renderImagePreviews();
 }
 
 async function submitForm() {
