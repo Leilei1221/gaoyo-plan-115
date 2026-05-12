@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>115優高計畫書 — 經費概算填寫</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f0f4f8; font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif; }
+    .card { border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    .section-title {
+      font-size: .8rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #6c757d; margin-bottom: .75rem;
+      padding-bottom: .4rem; border-bottom: 2px solid #e9ecef;
+    }
+    .hint { font-size: .82rem; color: #6c757d; margin-top: .2rem; }
+    .required-star { color: #dc3545; }
+    .header-bar {
+      background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
+      color: white; padding: 1.5rem 0; margin-bottom: 2rem;
+    }
+    #successBanner { display: none; }
+    .budget-table { font-size: .88rem; }
+    .budget-table th { background: #f8f9fa; font-weight: 600; white-space: nowrap; }
+    .budget-table td { vertical-align: middle; }
+    .amount-cell { font-weight: 600; color: #1a56db; }
+    .subtotal-row td { background: #e8f4ec; font-weight: 700; }
+    .auto-price-hint { font-size: .75rem; color: #6c757d; }
+    .semester-header {
+      background: linear-gradient(135deg, #0d6efd20, #0d6efd05);
+      border-left: 4px solid #0d6efd;
+      padding: .6rem 1rem; border-radius: 6px; margin-bottom: .75rem;
+    }
+    .semester-header.s2 {
+      background: linear-gradient(135deg, #fd7e1420, #fd7e1405);
+      border-left-color: #fd7e14;
+    }
+    .total-bar {
+      background: #1a56db; color: white;
+      border-radius: 8px; padding: .75rem 1.25rem;
+      font-weight: 700; font-size: 1.05rem;
+    }
+    .goods-table { background: #fffdf5; }
+    .data-table { background: #f5f9ff; }
+    .delete-btn { color: #dc3545; border: none; background: none; padding: 0 4px; font-size: 1rem; }
+    .delete-btn:hover { color: #a71d2a; }
+  </style>
+</head>
+<body>
+
+<div class="header-bar">
+  <div class="container">
+    <h4 class="mb-1 fw-bold"><i class="bi bi-calculator me-2"></i>115學年度優高計畫 — 經費概算填寫</h4>
+    <div class="opacity-75 small">國立花蓮高中 · 高中優質化輔助方案 · 單位：仟元（千元）</div>
+  </div>
+</div>
+
+<div class="container pb-5" style="max-width:960px">
+
+  <!-- 成功提示 -->
+  <div id="successBanner" class="alert alert-success alert-dismissible shadow-sm mb-4">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <strong>經費概算已成功送出！</strong>
+    <span id="successDetail"></span>
+    <button type="button" class="btn-close" onclick="document.getElementById('successBanner').style.display='none'"></button>
+  </div>
+
+  <!-- ── 基本資訊 ── -->
+  <div class="card p-4 mb-4">
+    <div class="section-title"><i class="bi bi-person-badge me-1"></i>基本資訊</div>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">姓名 <span class="required-star">*</span></label>
+        <input type="text" id="name" class="form-control" placeholder="請輸入姓名" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">科別 <span class="required-star">*</span></label>
+        <select id="subject" class="form-select" required>
+          <option value="">-- 請選擇 --</option>
+          <option>國文科</option>
+          <option>英文科</option>
+          <option>數學科</option>
+          <option>物理科</option>
+          <option>化學科</option>
+          <option>生物科</option>
+          <option>地科科</option>
+          <option>歷史科</option>
+          <option>地理科</option>
+          <option>公民與社會科</option>
+          <option>音樂科</option>
+          <option>美術科</option>
+          <option>體育科</option>
+          <option>家政科</option>
+          <option>資訊科</option>
+          <option>輔導室</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">子計畫類型 <span class="required-star">*</span></label>
+        <select id="sub_plan_type" class="form-select" required>
+          <option value="">-- 請選擇 --</option>
+          <option value="a1">A-1 課綱課程與社群</option>
+          <option value="a2">A-2 課綱課務推動</option>
+          <option value="b1-1">B1-1 數位學習核心小組</option>
+          <option value="b1-2">B1-2 數位學習課程與社群</option>
+          <option value="b1-3">B1-3 數位遠距共授</option>
+          <option value="b2">B2 社會情緒學習（SEL）</option>
+          <option value="b3">B3 交通安全教育</option>
+          <option value="c">C 學校特色發展</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">計畫名稱 <span class="required-star">*</span></label>
+        <input type="text" id="plan_name" class="form-control" placeholder="如：花蓮學" required>
+      </div>
+    </div>
+    <div class="mt-3 p-3 bg-warning bg-opacity-10 border border-warning rounded small">
+      <i class="bi bi-info-circle me-1 text-warning"></i>
+      <strong>填寫說明：</strong>經費單位為<strong>仟元（千元）</strong>，例如 4200 元請填 <strong>4.2</strong>。
+      補充保費（2.11%）系統自動計算，不需填寫。物品費與資料蒐集費請在下方獨立表格逐項填寫。
+    </div>
+  </div>
+
+  <!-- ── 上學期主要費用（8-12月）── -->
+  <div class="card p-4 mb-3">
+    <div class="section-title"><i class="bi bi-calendar3 me-1"></i>上學期主要費用（8-12月，114 會計年度）</div>
+    <div class="semester-header mb-3">
+      <small class="text-primary fw-semibold">▶ 主要經費項目（不含物品費及資料蒐集費，那兩項在下方填寫）</small>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered budget-table" id="s1MainTable">
+        <thead>
+          <tr>
+            <th style="width:220px">費用類別</th>
+            <th style="width:160px">項目說明</th>
+            <th style="width:80px">單位</th>
+            <th style="width:70px">數量</th>
+            <th style="width:100px">單價（仟元）</th>
+            <th style="width:90px">金額（仟元）</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="s1MainBody">
+        </tbody>
+        <tfoot>
+          <tr class="subtotal-row">
+            <td colspan="5" class="text-end">上學期主表小計</td>
+            <td id="s1MainSubtotal" class="amount-cell">0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" onclick="addRow('s1MainBody','s1Main')">
+      <i class="bi bi-plus-circle me-1"></i>新增費用項目
+    </button>
+  </div>
+
+  <!-- ── 下學期主要費用（1-7月）── -->
+  <div class="card p-4 mb-3">
+    <div class="section-title"><i class="bi bi-calendar3 me-1"></i>下學期主要費用（1-7月，115 會計年度）</div>
+    <div class="semester-header s2 mb-3">
+      <small class="text-warning fw-semibold">▶ 主要經費項目（不含物品費及資料蒐集費）</small>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered budget-table" id="s2MainTable">
+        <thead>
+          <tr>
+            <th style="width:220px">費用類別</th>
+            <th style="width:160px">項目說明</th>
+            <th style="width:80px">單位</th>
+            <th style="width:70px">數量</th>
+            <th style="width:100px">單價（仟元）</th>
+            <th style="width:90px">金額（仟元）</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="s2MainBody">
+        </tbody>
+        <tfoot>
+          <tr class="subtotal-row">
+            <td colspan="5" class="text-end">下學期主表小計</td>
+            <td id="s2MainSubtotal" class="amount-cell">0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <button class="btn btn-outline-warning btn-sm" onclick="addRow('s2MainBody','s2Main')">
+      <i class="bi bi-plus-circle me-1"></i>新增費用項目
+    </button>
+  </div>
+
+  <!-- ── 物品費清單 ── -->
+  <div class="card p-4 mb-3">
+    <div class="section-title"><i class="bi bi-box-seam me-1"></i>物品費清單（對應「物品費概算表」分頁）</div>
+    <p class="hint mb-3">逐項填寫所需物品，金額自動加總後會帶入主表「物品費（一式）」。</p>
+
+    <div class="mb-3">
+      <div class="semester-header mb-2"><small class="text-primary fw-semibold">▶ 上學期（8-12月）</small></div>
+      <div class="table-responsive">
+        <table class="table table-bordered budget-table goods-table" id="s1GoodsTable">
+          <thead>
+            <tr>
+              <th>品名規格</th>
+              <th style="width:80px">單位</th>
+              <th style="width:70px">數量</th>
+              <th style="width:110px">單價（仟元）</th>
+              <th style="width:100px">金額（仟元）</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="s1GoodsBody"></tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="4" class="text-end">上學期物品費小計</td>
+              <td id="s1GoodsSubtotal" class="amount-cell">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm me-2" onclick="addGoodsRow('s1GoodsBody','s1Goods')">
+        <i class="bi bi-plus-circle me-1"></i>新增品項
+      </button>
+    </div>
+
+    <div>
+      <div class="semester-header s2 mb-2"><small class="text-warning fw-semibold">▶ 下學期（1-7月）</small></div>
+      <div class="table-responsive">
+        <table class="table table-bordered budget-table goods-table" id="s2GoodsTable">
+          <thead>
+            <tr>
+              <th>品名規格</th>
+              <th style="width:80px">單位</th>
+              <th style="width:70px">數量</th>
+              <th style="width:110px">單價（仟元）</th>
+              <th style="width:100px">金額（仟元）</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="s2GoodsBody"></tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="4" class="text-end">下學期物品費小計</td>
+              <td id="s2GoodsSubtotal" class="amount-cell">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="addGoodsRow('s2GoodsBody','s2Goods')">
+        <i class="bi bi-plus-circle me-1"></i>新增品項
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 資料蒐集費清單 ── -->
+  <div class="card p-4 mb-4">
+    <div class="section-title"><i class="bi bi-journal-bookmark me-1"></i>資料蒐集費清單（對應「資料蒐集費概算表」分頁）</div>
+    <p class="hint mb-3">逐項填寫所需資料蒐集項目，金額自動加總後帶入主表「資料蒐集費（一式）」。</p>
+
+    <div class="mb-3">
+      <div class="semester-header mb-2"><small class="text-primary fw-semibold">▶ 上學期（8-12月）</small></div>
+      <div class="table-responsive">
+        <table class="table table-bordered budget-table data-table" id="s1DataTable">
+          <thead>
+            <tr>
+              <th>品名規格</th>
+              <th style="width:80px">單位</th>
+              <th style="width:70px">數量</th>
+              <th style="width:110px">單價（仟元）</th>
+              <th style="width:100px">金額（仟元）</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="s1DataBody"></tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="4" class="text-end">上學期資料蒐集費小計</td>
+              <td id="s1DataSubtotal" class="amount-cell">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="addDataRow('s1DataBody','s1Data')">
+        <i class="bi bi-plus-circle me-1"></i>新增項目
+      </button>
+    </div>
+
+    <div>
+      <div class="semester-header s2 mb-2"><small class="text-warning fw-semibold">▶ 下學期（1-7月）</small></div>
+      <div class="table-responsive">
+        <table class="table table-bordered budget-table data-table" id="s2DataTable">
+          <thead>
+            <tr>
+              <th>品名規格</th>
+              <th style="width:80px">單位</th>
+              <th style="width:70px">數量</th>
+              <th style="width:110px">單價（仟元）</th>
+              <th style="width:100px">金額（仟元）</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="s2DataBody"></tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="4" class="text-end">下學期資料蒐集費小計</td>
+              <td id="s2DataSubtotal" class="amount-cell">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="addDataRow('s2DataBody','s2Data')">
+        <i class="bi bi-plus-circle me-1"></i>新增項目
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 合計 & 送出 ── -->
+  <div class="card p-4 mb-4">
+    <div class="section-title"><i class="bi bi-sigma me-1"></i>經費合計</div>
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <div class="p-3 border rounded bg-primary bg-opacity-10">
+          <div class="small text-muted mb-1">上學期（8-12月）合計</div>
+          <div class="fw-bold fs-5 text-primary" id="totalS1">0.00 仟元</div>
+          <div class="auto-price-hint mt-1">主表 + 物品費 + 資料蒐集費（含補充保費 2.11%）</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 border rounded bg-warning bg-opacity-10">
+          <div class="small text-muted mb-1">下學期（1-7月）合計</div>
+          <div class="fw-bold fs-5 text-warning" id="totalS2">0.00 仟元</div>
+          <div class="auto-price-hint mt-1">主表 + 物品費 + 資料蒐集費（含補充保費 2.11%）</div>
+        </div>
+      </div>
+    </div>
+    <div class="total-bar d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-currency-dollar me-1"></i>全年度總經費</span>
+      <span id="grandTotal">0.00 仟元</span>
+    </div>
+  </div>
+
+  <!-- 送出按鈕 -->
+  <div class="d-grid gap-2">
+    <button class="btn btn-success btn-lg" onclick="submitBudget()" id="submitBtn">
+      <i class="bi bi-send me-2"></i>送出經費概算
+    </button>
+    <a href="index.html" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>回到計畫書填寫
+    </a>
+  </div>
+
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── GAS 端點（部署 budget/Code.gs 後填入）────────────────────────────
+const GAS_URL = "請填入_budget_GAS_部署網址";
+
+// ── 費用類別與參考單價 ────────────────────────────────────────────────
+const CATEGORIES = [
+  { label: "請選擇費用類別", price: "" },
+  { label: "講座鐘點費（內聘）", price: "0.42", unit: "節", hint: "每節 0.42 仟元" },
+  { label: "講座鐘點費（外聘）", price: "2",    unit: "節", hint: "每節 2 仟元" },
+  { label: "授課鐘點費（內聘）", price: "0.42", unit: "節", hint: "每節 0.42 仟元" },
+  { label: "授課鐘點費（外聘）", price: "2",    unit: "節", hint: "每節 2 仟元" },
+  { label: "諮詢費",             price: "",     unit: "次", hint: "" },
+  { label: "輔導費",             price: "",     unit: "次", hint: "" },
+  { label: "指導費",             price: "",     unit: "次", hint: "" },
+  { label: "稿費",               price: "",     unit: "份", hint: "" },
+  { label: "臨時工作人員費",     price: "",     unit: "次", hint: "" },
+  { label: "國內旅費",           price: "5",    unit: "人次", hint: "每人次 5 仟元" },
+  { label: "材料費",             price: "0.2",  unit: "人次", hint: "每人次 0.2 仟元" },
+  { label: "設備及投資（資本門）", price: "",   unit: "式", hint: "" },
+  { label: "其他",               price: "",     unit: "式", hint: "" },
+];
+
+// ── 建立費用類別 <select> HTML ────────────────────────────────────────
+function categorySelect(id) {
+  let opts = CATEGORIES.map((c, i) =>
+    `<option value="${i === 0 ? '' : c.label}" data-price="${c.price}" data-unit="${c.unit || ''}">${c.label}</option>`
+  ).join('');
+  return `<select class="form-select form-select-sm category-sel" id="${id}" onchange="onCategoryChange(this)">${opts}</select>
+          <div class="auto-price-hint" id="${id}_hint"></div>`;
+}
+
+function onCategoryChange(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const price = opt.getAttribute('data-price');
+  const unit  = opt.getAttribute('data-unit');
+  const hint  = CATEGORIES.find(c => c.label === sel.value);
+  const hintEl = document.getElementById(sel.id + '_hint');
+  const row = sel.closest('tr');
+
+  // 自動填入參考單位和單價
+  const unitInput = row.querySelector('.unit-input');
+  const priceInput = row.querySelector('.price-input');
+  if (unitInput && unit) unitInput.value = unit;
+  if (priceInput && price) priceInput.value = price;
+  if (hintEl) hintEl.textContent = hint && hint.hint ? '參考：' + hint.hint : '';
+
+  recalcRow(row);
+}
+
+// ── 主表：新增費用列 ─────────────────────────────────────────────────
+let mainRowCnt = 0;
+function addRow(bodyId, prefix) {
+  const tbody = document.getElementById(bodyId);
+  const rid = prefix + '_' + (++mainRowCnt);
+  const tr = document.createElement('tr');
+  tr.id = 'row_' + rid;
+  tr.innerHTML = `
+    <td>${categorySelect('cat_' + rid)}</td>
+    <td><input type="text" class="form-control form-control-sm desc-input" placeholder="如：高中部教師"></td>
+    <td><input type="text" class="form-control form-control-sm unit-input" placeholder="節"></td>
+    <td><input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="" oninput="recalcRow(this.closest('tr'))"></td>
+    <td><input type="number" class="form-control form-control-sm price-input" min="0" step="0.01" value="" oninput="recalcRow(this.closest('tr'))"></td>
+    <td class="amount-cell amount-display">0.00</td>
+    <td><button class="delete-btn" onclick="deleteRow(this)" title="刪除"><i class="bi bi-trash3"></i></button></td>
+  `;
+  tbody.appendChild(tr);
+  updateSubtotals();
+}
+
+// ── 物品費：新增列 ────────────────────────────────────────────────────
+let goodsRowCnt = 0;
+function addGoodsRow(bodyId, prefix) {
+  const tbody = document.getElementById(bodyId);
+  const rid = prefix + '_' + (++goodsRowCnt);
+  const tr = document.createElement('tr');
+  tr.id = 'row_' + rid;
+  tr.innerHTML = `
+    <td><input type="text" class="form-control form-control-sm desc-input" placeholder="如：A4影印紙"></td>
+    <td><input type="text" class="form-control form-control-sm unit-input" placeholder="令"></td>
+    <td><input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="" oninput="recalcRow(this.closest('tr'))"></td>
+    <td><input type="number" class="form-control form-control-sm price-input" min="0" step="0.001" value="" oninput="recalcRow(this.closest('tr'))"></td>
+    <td class="amount-cell amount-display">0.00</td>
+    <td><button class="delete-btn" onclick="deleteRow(this)" title="刪除"><i class="bi bi-trash3"></i></button></td>
+  `;
+  tbody.appendChild(tr);
+  updateSubtotals();
+}
+
+// ── 資料蒐集費：新增列 ───────────────────────────────────────────────
+let dataRowCnt = 0;
+function addDataRow(bodyId, prefix) {
+  const tbody = document.getElementById(bodyId);
+  const rid = prefix + '_' + (++dataRowCnt);
+  const tr = document.createElement('tr');
+  tr.id = 'row_' + rid;
+  tr.innerHTML = `
+    <td><input type="text" class="form-control form-control-sm desc-input" placeholder="如：教育相關書籍"></td>
+    <td><input type="text" class="form-control form-control-sm unit-input" placeholder="本"></td>
+    <td><input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="" oninput="recalcRow(this.closest('tr'))"></td>
+    <td><input type="number" class="form-control form-control-sm price-input" min="0" step="0.001" value="" oninput="recalcRow(this.closest('tr'))"></td>
+    <td class="amount-cell amount-display">0.00</td>
+    <td><button class="delete-btn" onclick="deleteRow(this)" title="刪除"><i class="bi bi-trash3"></i></button></td>
+  `;
+  tbody.appendChild(tr);
+  updateSubtotals();
+}
+
+function deleteRow(btn) {
+  btn.closest('tr').remove();
+  updateSubtotals();
+}
+
+function recalcRow(tr) {
+  const qty = parseFloat(tr.querySelector('.qty-input')?.value) || 0;
+  const price = parseFloat(tr.querySelector('.price-input')?.value) || 0;
+  const amount = qty * price;
+  const disp = tr.querySelector('.amount-display');
+  if (disp) disp.textContent = amount.toFixed(3).replace(/\.?0+$/, '') || '0.00';
+  updateSubtotals();
+}
+
+// ── 加總所有小計 ──────────────────────────────────────────────────────
+function sumBody(bodyId) {
+  let total = 0;
+  document.querySelectorAll('#' + bodyId + ' tr').forEach(tr => {
+    const qty = parseFloat(tr.querySelector('.qty-input')?.value) || 0;
+    const price = parseFloat(tr.querySelector('.price-input')?.value) || 0;
+    total += qty * price;
+  });
+  return total;
+}
+
+// 鐘點費加總（用來算補充保費 2.11%）
+function honorariumSum(bodyId) {
+  let total = 0;
+  document.querySelectorAll('#' + bodyId + ' tr').forEach(tr => {
+    const cat = tr.querySelector('.category-sel')?.value || '';
+    if (cat.includes('鐘點費') || cat.includes('諮詢費') || cat.includes('輔導費') || cat.includes('指導費') || cat.includes('稿費') || cat.includes('臨時工作人員費')) {
+      const qty = parseFloat(tr.querySelector('.qty-input')?.value) || 0;
+      const price = parseFloat(tr.querySelector('.price-input')?.value) || 0;
+      total += qty * price;
+    }
+  });
+  return total;
+}
+
+function fmt(n) {
+  const s = n.toFixed(3);
+  return parseFloat(s).toString().indexOf('.') < 0 ? parseFloat(s).toString() : parseFloat(s).toFixed(
+    Math.max(2, s.replace(/0+$/, '').split('.')[1]?.length || 2)
+  );
+}
+
+function updateSubtotals() {
+  const s1Main  = sumBody('s1MainBody');
+  const s2Main  = sumBody('s2MainBody');
+  const s1Goods = sumBody('s1GoodsBody');
+  const s2Goods = sumBody('s2GoodsBody');
+  const s1Data  = sumBody('s1DataBody');
+  const s2Data  = sumBody('s2DataBody');
+
+  // 補充保費
+  const s1Supp = honorariumSum('s1MainBody') * 0.0211;
+  const s2Supp = honorariumSum('s2MainBody') * 0.0211;
+
+  document.getElementById('s1MainSubtotal').textContent = s1Main.toFixed(2);
+  document.getElementById('s2MainSubtotal').textContent = s2Main.toFixed(2);
+  document.getElementById('s1GoodsSubtotal').textContent = s1Goods.toFixed(3);
+  document.getElementById('s2GoodsSubtotal').textContent = s2Goods.toFixed(3);
+  document.getElementById('s1DataSubtotal').textContent = s1Data.toFixed(3);
+  document.getElementById('s2DataSubtotal').textContent = s2Data.toFixed(3);
+
+  const totalS1 = s1Main + s1Goods + s1Data + s1Supp;
+  const totalS2 = s2Main + s2Goods + s2Data + s2Supp;
+  document.getElementById('totalS1').textContent = totalS1.toFixed(2) + ' 仟元';
+  document.getElementById('totalS2').textContent = totalS2.toFixed(2) + ' 仟元';
+  document.getElementById('grandTotal').textContent = (totalS1 + totalS2).toFixed(2) + ' 仟元';
+}
+
+// ── 收集表格資料 ──────────────────────────────────────────────────────
+function collectMainRows(bodyId, semester) {
+  const rows = [];
+  document.querySelectorAll('#' + bodyId + ' tr').forEach(tr => {
+    const cat = tr.querySelector('.category-sel')?.value || '';
+    const desc = tr.querySelector('.desc-input')?.value || '';
+    const unit = tr.querySelector('.unit-input')?.value || '';
+    const qty = parseFloat(tr.querySelector('.qty-input')?.value) || 0;
+    const price = parseFloat(tr.querySelector('.price-input')?.value) || 0;
+    if (cat || desc || qty) {
+      rows.push({ semester, category: cat, description: desc, unit, quantity: qty, unit_price: price, amount: parseFloat((qty * price).toFixed(4)) });
+    }
+  });
+  return rows;
+}
+
+function collectSimpleRows(bodyId, semester) {
+  const rows = [];
+  document.querySelectorAll('#' + bodyId + ' tr').forEach(tr => {
+    const name = tr.querySelector('.desc-input')?.value || '';
+    const unit = tr.querySelector('.unit-input')?.value || '';
+    const qty = parseFloat(tr.querySelector('.qty-input')?.value) || 0;
+    const price = parseFloat(tr.querySelector('.price-input')?.value) || 0;
+    if (name || qty) {
+      rows.push({ semester, name, unit, quantity: qty, unit_price: price, amount: parseFloat((qty * price).toFixed(4)) });
+    }
+  });
+  return rows;
+}
+
+// ── 送出 ─────────────────────────────────────────────────────────────
+async function submitBudget() {
+  // 驗證
+  const name = document.getElementById('name').value.trim();
+  const subject = document.getElementById('subject').value;
+  const subPlan = document.getElementById('sub_plan_type').value;
+  const planName = document.getElementById('plan_name').value.trim();
+  if (!name || !subject || !subPlan || !planName) {
+    alert('請填寫基本資訊（姓名、科別、子計畫類型、計畫名稱）');
+    return;
+  }
+
+  const mainItems = [
+    ...collectMainRows('s1MainBody', '上學期'),
+    ...collectMainRows('s2MainBody', '下學期'),
+  ];
+  const goodsItems = [
+    ...collectSimpleRows('s1GoodsBody', '上學期'),
+    ...collectSimpleRows('s2GoodsBody', '下學期'),
+  ];
+  const dataItems = [
+    ...collectSimpleRows('s1DataBody', '上學期'),
+    ...collectSimpleRows('s2DataBody', '下學期'),
+  ];
+
+  if (mainItems.length + goodsItems.length + dataItems.length === 0) {
+    alert('請至少填寫一筆費用項目');
+    return;
+  }
+
+  const payload = { name, subject, sub_plan_type: subPlan, plan_name: planName, main_items: mainItems, goods_items: goodsItems, data_items: dataItems };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中…';
+
+  try {
+    const resp = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const json = await resp.json();
+    if (json.ok) {
+      const grand = document.getElementById('grandTotal').textContent;
+      document.getElementById('successDetail').textContent = ` 共計 ${grand}，感謝 ${name} 老師完成填報。`;
+      document.getElementById('successBanner').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      alert('送出失敗：' + json.message);
+    }
+  } catch (err) {
+    alert('連線錯誤，請稍後再試。\n' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send me-2"></i>送出經費概算';
+  }
+}
+
+// ── 初始預設列 ────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // 主表各預設 2 列
+  addRow('s1MainBody', 's1Main');
+  addRow('s1MainBody', 's1Main');
+  addRow('s2MainBody', 's2Main');
+  addRow('s2MainBody', 's2Main');
+  // 物品費 & 資料蒐集費各預設 1 列
+  addGoodsRow('s1GoodsBody', 's1Goods');
+  addGoodsRow('s2GoodsBody', 's2Goods');
+  addDataRow('s1DataBody', 's1Data');
+  addDataRow('s2DataBody', 's2Data');
+});
+</script>
+</body>
+</html>
