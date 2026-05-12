@@ -1533,20 +1533,39 @@ function prefillBudgetBasicInfo(payload) {
 var BUDGET_GAS_URL = "https://script.google.com/macros/s/AKfycby7y8PVCzxnGmwwOJKNCMtHvq0zZ8ShANtMLTrz-DSU7O3Xq9yGWCVFTzs01UvooBGJ/exec";
 
 var CATEGORIES = [
-  { label: "請選擇費用類別", price: "" },
-  { label: "講座鐘點費（內聘）", price: "0.42", unit: "節", hint: "每節 0.42 仟元" },
-  { label: "講座鐘點費（外聘）", price: "2",    unit: "節", hint: "每節 2 仟元" },
-  { label: "授課鐘點費（內聘）", price: "0.42", unit: "節", hint: "每節 0.42 仟元" },
-  { label: "授課鐘點費（外聘）", price: "2",    unit: "節", hint: "每節 2 仟元" },
-  { label: "諮詢費",             price: "",     unit: "次", hint: "" },
-  { label: "輔導費",             price: "",     unit: "次", hint: "" },
-  { label: "指導費",             price: "",     unit: "次", hint: "" },
-  { label: "稿費",               price: "",     unit: "份", hint: "" },
-  { label: "臨時工作人員費",     price: "",     unit: "次", hint: "" },
-  { label: "國內旅費",           price: "5",    unit: "人次", hint: "每人次 5 仟元" },
-  { label: "材料費",             price: "0.2",  unit: "人次", hint: "每人次 0.2 仟元" },
-  { label: "設備及投資（資本門）", price: "",   unit: "式", hint: "" },
-  { label: "其他",               price: "",     unit: "式", hint: "" },
+  { label: "請選擇費用類別",           price: "",      unit: "",    hint: "" },
+  // ── 鐘點費 ──
+  { label: "講座鐘點費（內聘）",       price: "0.42",  unit: "節",  hint: "每節 0.42 仟元（420 元）" },
+  { label: "講座鐘點費（外聘，學術機構）", price: "2", unit: "節",  hint: "每節 2 仟元（2,000 元）" },
+  { label: "講座鐘點費（外聘，非學術機構）", price: "2", unit: "節", hint: "每節 2 仟元（2,000 元）" },
+  { label: "授課鐘點費（內聘）",       price: "0.42",  unit: "節",  hint: "每節 0.42 仟元（420 元）" },
+  { label: "授課鐘點費（外聘）",       price: "2",     unit: "節",  hint: "每節 2 仟元（2,000 元）" },
+  // ── 業務費 ──
+  { label: "諮詢費",                   price: "",      unit: "次",  hint: "" },
+  { label: "輔導費",                   price: "",      unit: "次",  hint: "" },
+  { label: "指導費",                   price: "",      unit: "次",  hint: "" },
+  { label: "稿費",                     price: "",      unit: "份",  hint: "" },
+  { label: "臨時工作人員／工讀費",     price: "0.196", unit: "時",  hint: "每時 0.196 仟元（196 元）" },
+  { label: "印刷費",                   price: "",      unit: "式",  hint: "" },
+  { label: "資料蒐集費",               price: "",      unit: "式",  hint: "請在下方資料蒐集費清單逐項填寫，此欄填一式合計" },
+  { label: "資料檢索費",               price: "",      unit: "次",  hint: "" },
+  { label: "膳宿費",                   price: "0.120", unit: "人次", hint: "每人次 0.12 仟元（120 元）" },
+  { label: "保險費",                   price: "0.030", unit: "人次", hint: "每人次 0.03 仟元（30 元）" },
+  { label: "場地使用費",               price: "",      unit: "次",  hint: "" },
+  { label: "雜支（包含耗材）",         price: "",      unit: "式",  hint: "" },
+  // ── 旅費 ──
+  { label: "國內旅費",                 price: "5",     unit: "人次", hint: "每人次 5 仟元（5,000 元）" },
+  { label: "租車費",                   price: "",      unit: "台",  hint: "每台上限 12 仟元（12,000 元）" },
+  // ── 補充保費（自動計算，通常不需手填）──
+  { label: "全民健康保險補充保費",     price: "",      unit: "式",  hint: "系統依鐘點費等總額 × 2.11% 自動計算，通常不需手動填寫" },
+  // ── 物品 ──
+  { label: "材料費",                   price: "0.2",   unit: "人次", hint: "每人次上限 0.2 仟元（200 元）" },
+  { label: "物品費",                   price: "",      unit: "式",  hint: "請在下方物品費清單逐項填寫，此欄填一式合計" },
+  // ── 資本門 ──
+  { label: "設備維護費",               price: "",      unit: "式",  hint: "" },
+  { label: "軟體設計費／軟體授權費",   price: "",      unit: "式",  hint: "" },
+  { label: "設備及投資（資本門）",     price: "",      unit: "式",  hint: "" },
+  { label: "其他",                     price: "",      unit: "式",  hint: "" },
 ];
 
 function categorySelect(id) {
@@ -1652,7 +1671,7 @@ function honorariumSum(bodyId) {
   var total = 0;
   document.querySelectorAll('#' + bodyId + ' tr').forEach(function(tr) {
     var cat = (tr.querySelector('.category-sel') && tr.querySelector('.category-sel').value) || '';
-    if (cat.includes('鐘點費') || cat.includes('諮詢費') || cat.includes('輔導費') || cat.includes('指導費') || cat.includes('稿費') || cat.includes('臨時工作人員費')) {
+    if (cat.includes('鐘點費') || cat.includes('諮詢費') || cat.includes('輔導費') || cat.includes('指導費') || cat.includes('稿費') || cat.includes('臨時工作人員')) {
       var qty = parseFloat(tr.querySelector('.qty-input') && tr.querySelector('.qty-input').value) || 0;
       var price = parseFloat(tr.querySelector('.price-input') && tr.querySelector('.price-input').value) || 0;
       total += qty * price;
