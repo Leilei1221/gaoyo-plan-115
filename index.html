@@ -58,6 +58,13 @@
     }
     .goods-table { background: #fffdf5; }
     .data-table { background: #f5f9ff; }
+    /* 固定自動列 */
+    .auto-supp td { background: #fff8e1; color: #664d03; }
+    .auto-goods td { background: #e8f5e9; color: #1b5e20; }
+    .auto-data  td { background: #e3f2fd; color: #0d47a1; }
+    .auto-row .amount-cell { font-weight: 700; }
+    .auto-badge { font-size: .68rem; padding: .15rem .4rem; border-radius: 4px; font-weight: 700; margin-right: .3rem; }
+    .misc-warn { background: #fff3cd; border: 1px solid #ffc107; color: #664d03; border-radius: 6px; padding: .5rem .9rem; font-size: .85rem; margin-top: .75rem; display: none; }
     .delete-btn { color: #dc3545; border: none; background: none; padding: 0 4px; font-size: 1rem; }
     .delete-btn:hover { color: #a71d2a; }
     #b_successBanner { display: none; }
@@ -856,9 +863,35 @@
           </tr>
         </thead>
         <tbody id="s1MainBody"></tbody>
+        <tbody>
+          <tr class="auto-row auto-supp">
+            <td><span class="auto-badge" style="background:#fd7e14;color:#fff">自動</span>全民健康保險補充保費</td>
+            <td class="small">鐘點費等合計 × 2.11%</td>
+            <td>式</td><td class="text-center">1</td>
+            <td id="s1SuppPrice" class="text-end">0.000</td>
+            <td id="s1SuppAmt" class="amount-cell">0.000</td>
+            <td></td>
+          </tr>
+          <tr class="auto-row auto-goods">
+            <td><span class="auto-badge" style="background:#198754;color:#fff">自動</span>物品費（一式）</td>
+            <td class="small">見下方物品費清單</td>
+            <td>式</td><td class="text-center">1</td>
+            <td id="s1GoodsPrice" class="text-end">0.000</td>
+            <td id="s1GoodsAmt" class="amount-cell">0.000</td>
+            <td></td>
+          </tr>
+          <tr class="auto-row auto-data">
+            <td><span class="auto-badge" style="background:#0d6efd;color:#fff">自動</span>資料蒐集費（一式）</td>
+            <td class="small">見下方資料蒐集費清單</td>
+            <td>式</td><td class="text-center">1</td>
+            <td id="s1DataPrice" class="text-end">0.000</td>
+            <td id="s1DataAmt" class="amount-cell">0.000</td>
+            <td></td>
+          </tr>
+        </tbody>
         <tfoot>
           <tr class="subtotal-row">
-            <td colspan="5" class="text-end">上學期主表小計</td>
+            <td colspan="5" class="text-end">上學期小計（含三項自動）</td>
             <td id="s1MainSubtotal" class="amount-cell">0.00</td>
             <td></td>
           </tr>
@@ -890,9 +923,35 @@
           </tr>
         </thead>
         <tbody id="s2MainBody"></tbody>
+        <tbody>
+          <tr class="auto-row auto-supp">
+            <td><span class="auto-badge" style="background:#fd7e14;color:#fff">自動</span>全民健康保險補充保費</td>
+            <td class="small">鐘點費等合計 × 2.11%</td>
+            <td>式</td><td class="text-center">1</td>
+            <td id="s2SuppPrice" class="text-end">0.000</td>
+            <td id="s2SuppAmt" class="amount-cell">0.000</td>
+            <td></td>
+          </tr>
+          <tr class="auto-row auto-goods">
+            <td><span class="auto-badge" style="background:#198754;color:#fff">自動</span>物品費（一式）</td>
+            <td class="small">見下方物品費清單</td>
+            <td>式</td><td class="text-center">1</td>
+            <td id="s2GoodsPrice" class="text-end">0.000</td>
+            <td id="s2GoodsAmt" class="amount-cell">0.000</td>
+            <td></td>
+          </tr>
+          <tr class="auto-row auto-data">
+            <td><span class="auto-badge" style="background:#0d6efd;color:#fff">自動</span>資料蒐集費（一式）</td>
+            <td class="small">見下方資料蒐集費清單</td>
+            <td>式</td><td class="text-center">1</td>
+            <td id="s2DataPrice" class="text-end">0.000</td>
+            <td id="s2DataAmt" class="amount-cell">0.000</td>
+            <td></td>
+          </tr>
+        </tbody>
         <tfoot>
           <tr class="subtotal-row">
-            <td colspan="5" class="text-end">下學期主表小計</td>
+            <td colspan="5" class="text-end">下學期小計（含三項自動）</td>
             <td id="s2MainSubtotal" class="amount-cell">0.00</td>
             <td></td>
           </tr>
@@ -1004,20 +1063,24 @@
         <div class="p-3 border rounded bg-primary bg-opacity-10">
           <div class="small text-muted mb-1">上學期（8-12月）合計</div>
           <div class="fw-bold fs-5 text-primary" id="totalS1">0.00 仟元</div>
-          <div class="auto-price-hint mt-1">主表 + 物品費 + 資料蒐集費（含補充保費 2.11%）</div>
+          <div class="auto-price-hint mt-1">含鐘點費等業務費、健保補充費、物品費、資料蒐集費</div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="p-3 border rounded bg-warning bg-opacity-10">
           <div class="small text-muted mb-1">下學期（1-7月）合計</div>
           <div class="fw-bold fs-5 text-warning" id="totalS2">0.00 仟元</div>
-          <div class="auto-price-hint mt-1">主表 + 物品費 + 資料蒐集費（含補充保費 2.11%）</div>
+          <div class="auto-price-hint mt-1">含鐘點費等業務費、健保補充費、物品費、資料蒐集費</div>
         </div>
       </div>
     </div>
     <div class="total-bar d-flex justify-content-between align-items-center">
       <span><i class="bi bi-currency-dollar me-1"></i>全年度總經費</span>
       <span id="grandTotal">0.00 仟元</span>
+    </div>
+    <div id="miscWarning" class="misc-warn mt-3">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i>
+      <span id="miscWarnText"></span>
     </div>
   </div>
 
@@ -1547,7 +1610,6 @@ var CATEGORIES = [
   { label: "稿費",                     price: "",      unit: "份",  hint: "" },
   { label: "臨時工作人員／工讀費",     price: "0.196", unit: "時",  hint: "每時 0.196 仟元（196 元）" },
   { label: "印刷費",                   price: "",      unit: "式",  hint: "" },
-  { label: "資料蒐集費",               price: "",      unit: "式",  hint: "請在下方資料蒐集費清單逐項填寫，此欄填一式合計" },
   { label: "資料檢索費",               price: "",      unit: "次",  hint: "" },
   { label: "膳宿費",                   price: "0.120", unit: "人次", hint: "每人次 0.12 仟元（120 元）" },
   { label: "保險費",                   price: "0.030", unit: "人次", hint: "每人次 0.03 仟元（30 元）" },
@@ -1557,10 +1619,8 @@ var CATEGORIES = [
   { label: "國內旅費",                 price: "5",     unit: "人次", hint: "每人次 5 仟元（5,000 元）" },
   { label: "租車費",                   price: "",      unit: "台",  hint: "每台上限 12 仟元（12,000 元）",    max: 12 },
   // ── 補充保費（自動計算，通常不需手填）──
-  { label: "全民健康保險補充保費",     price: "",      unit: "式",  hint: "系統依鐘點費等總額 × 2.11% 自動計算，通常不需手動填寫" },
   // ── 物品 ──
   { label: "材料費",                   price: "0.2",   unit: "人次", hint: "每人次上限 0.2 仟元（200 元）",     max: 0.2 },
-  { label: "物品費",                   price: "",      unit: "式",  hint: "請在下方物品費清單逐項填寫，此欄填一式合計" },
   // ── 資本門 ──
   { label: "設備維護費",               price: "",      unit: "式",  hint: "" },
   { label: "軟體設計費／軟體授權費",   price: "",      unit: "式",  hint: "" },
@@ -1589,16 +1649,8 @@ function onCategoryChange(sel) {
   if (priceInput && price) priceInput.value = price;
   if (hintEl) hintEl.textContent = hintData && hintData.hint ? '參考：' + hintData.hint : '';
 
-  // 物品費 / 資料蒐集費：鎖定數量＆單價，由子表自動帶入
-  var isAutoSync = (sel.value === '物品費' || sel.value === '資料蒐集費');
-  var qtyInput = row.querySelector('.qty-input');
-  if (qtyInput) qtyInput.readOnly = isAutoSync;
-  if (priceInput) {
-    priceInput.readOnly = isAutoSync;
-    priceInput.style.borderColor = '';
-    priceInput.style.boxShadow = '';
-    priceInput.style.backgroundColor = isAutoSync ? '#e8f4ec' : '';
-  }
+  // 切換類別時清除警示
+  if (priceInput) { priceInput.style.borderColor = ''; priceInput.style.boxShadow = ''; }
   var warnEl = row.querySelector('.price-warn');
   if (warnEl) warnEl.textContent = '';
 
@@ -1633,11 +1685,29 @@ function addGoodsRow(bodyId, prefix) {
   tr.innerHTML =
     '<td><input type="text" class="form-control form-control-sm desc-input" placeholder="如：A4影印紙"></td>' +
     '<td><input type="text" class="form-control form-control-sm unit-input" placeholder="令"></td>' +
-    '<td><input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="" oninput="recalcRow(this.closest(\'tr\'))"></td>' +
-    '<td><input type="number" class="form-control form-control-sm price-input" min="0" step="0.001" value="" oninput="recalcRow(this.closest(\'tr\'))"></td>' +
-    '<td class="amount-cell amount-display">0.00</td>' +
+    '<td><input type="number" class="form-control form-control-sm qty-input" min="0" step="1" value="" oninput="recalcGoodsRow(this.closest(\'tr\'))"></td>' +
+    '<td><input type="number" class="form-control form-control-sm price-input" min="0" step="0.001" value="" oninput="recalcGoodsRow(this.closest(\'tr\'))">' +
+    '<div class="price-warn text-danger" style="font-size:.75rem;min-height:1em"></div></td>' +
+    '<td class="amount-cell amount-display">0.000</td>' +
     '<td><button class="delete-btn" onclick="deleteRow(this)" title="刪除"><i class="bi bi-trash3"></i></button></td>';
   tbody.appendChild(tr);
+  updateSubtotals();
+}
+
+function recalcGoodsRow(tr) {
+  var qty = parseFloat(tr.querySelector('.qty-input') && tr.querySelector('.qty-input').value) || 0;
+  var priceInput = tr.querySelector('.price-input');
+  var price = parseFloat(priceInput && priceInput.value) || 0;
+  var disp = tr.querySelector('.amount-display');
+  if (disp) disp.textContent = (qty * price).toFixed(3);
+  // 物品費單價上限 10 仟元（10,000 元）
+  var warnEl = tr.querySelector('.price-warn');
+  var over = price > 10;
+  if (priceInput) {
+    priceInput.style.borderColor    = over ? '#dc3545' : '';
+    priceInput.style.boxShadow      = over ? '0 0 0 2px rgba(220,53,69,.25)' : '';
+  }
+  if (warnEl) warnEl.textContent = over ? '⚠ 超過上限 10 仟元（10,000 元）' : '';
   updateSubtotals();
 }
 
@@ -1710,76 +1780,74 @@ function honorariumSum(bodyId) {
   return total;
 }
 
-// 自動將子表合計帶入主表對應列
-function syncMainRow(bodyId, catLabel, total) {
-  document.querySelectorAll('#' + bodyId + ' tr').forEach(function(tr) {
-    var catSel = tr.querySelector('.category-sel');
-    if (!catSel || catSel.value !== catLabel) return;
-    var qtyInput   = tr.querySelector('.qty-input');
-    var priceInput = tr.querySelector('.price-input');
-    var amountDisp = tr.querySelector('.amount-display');
-    if (qtyInput)   { qtyInput.value = 1; qtyInput.readOnly = true; }
-    if (priceInput) {
-      priceInput.value = total.toFixed(3);
-      priceInput.readOnly = true;
-      priceInput.style.borderColor = '';
-      priceInput.style.boxShadow   = '';
-      priceInput.style.backgroundColor = '#e8f4ec';
-    }
-    if (amountDisp) amountDisp.textContent = total.toFixed(3);
-  });
+function setText(id, val) {
+  var el = document.getElementById(id); if (el) el.textContent = val;
 }
 
-// 主表中是否已有指定類別列（有就不另加，避免重複計算）
-function hasMainRowOfCat(bodyId, catLabel) {
-  var rows = document.querySelectorAll('#' + bodyId + ' tr');
-  for (var i = 0; i < rows.length; i++) {
-    var sel = rows[i].querySelector('.category-sel');
-    if (sel && sel.value === catLabel) return true;
-  }
-  return false;
+function sumBodyByCat(bodyId, catLabel) {
+  var total = 0;
+  document.querySelectorAll('#' + bodyId + ' tr').forEach(function(tr) {
+    var cat = (tr.querySelector('.category-sel') && tr.querySelector('.category-sel').value) || '';
+    if (cat !== catLabel) return;
+    var qty   = parseFloat(tr.querySelector('.qty-input')   && tr.querySelector('.qty-input').value)   || 0;
+    var price = parseFloat(tr.querySelector('.price-input') && tr.querySelector('.price-input').value) || 0;
+    total += qty * price;
+  });
+  return total;
 }
 
 function updateSubtotals() {
-  // 1. 先算子表
+  // ── 子表合計 ──
   var s1Goods = sumBody('s1GoodsBody');
   var s2Goods = sumBody('s2GoodsBody');
   var s1Data  = sumBody('s1DataBody');
   var s2Data  = sumBody('s2DataBody');
 
-  // 2. 同步子表合計到主表對應列（物品費 / 資料蒐集費）
-  syncMainRow('s1MainBody', '物品費',     s1Goods);
-  syncMainRow('s2MainBody', '物品費',     s2Goods);
-  syncMainRow('s1MainBody', '資料蒐集費', s1Data);
-  syncMainRow('s2MainBody', '資料蒐集費', s2Data);
-
-  // 3. 再算主表（已包含同步後的列）
-  var s1Main = sumBody('s1MainBody');
-  var s2Main = sumBody('s2MainBody');
-
+  // ── 補充保費 ──
   var s1Supp = honorariumSum('s1MainBody') * 0.0211;
   var s2Supp = honorariumSum('s2MainBody') * 0.0211;
 
-  document.getElementById('s1MainSubtotal').textContent = s1Main.toFixed(2);
-  document.getElementById('s2MainSubtotal').textContent = s2Main.toFixed(2);
-  document.getElementById('s1GoodsSubtotal').textContent = s1Goods.toFixed(3);
-  document.getElementById('s2GoodsSubtotal').textContent = s2Goods.toFixed(3);
-  document.getElementById('s1DataSubtotal').textContent = s1Data.toFixed(3);
-  document.getElementById('s2DataSubtotal').textContent = s2Data.toFixed(3);
+  // ── 更新固定列顯示 ──
+  setText('s1SuppPrice',   s1Supp.toFixed(3));  setText('s1SuppAmt',    s1Supp.toFixed(3));
+  setText('s1GoodsPrice',  s1Goods.toFixed(3)); setText('s1GoodsAmt',   s1Goods.toFixed(3));
+  setText('s1DataPrice',   s1Data.toFixed(3));  setText('s1DataAmt',    s1Data.toFixed(3));
+  setText('s2SuppPrice',   s2Supp.toFixed(3));  setText('s2SuppAmt',    s2Supp.toFixed(3));
+  setText('s2GoodsPrice',  s2Goods.toFixed(3)); setText('s2GoodsAmt',   s2Goods.toFixed(3));
+  setText('s2DataPrice',   s2Data.toFixed(3));  setText('s2DataAmt',    s2Data.toFixed(3));
 
-  // 4. 總計：主表中已有物品費/資料蒐集費列者不重複加
-  var totalS1 = s1Main
-    + (hasMainRowOfCat('s1MainBody', '物品費')     ? 0 : s1Goods)
-    + (hasMainRowOfCat('s1MainBody', '資料蒐集費') ? 0 : s1Data)
-    + s1Supp;
-  var totalS2 = s2Main
-    + (hasMainRowOfCat('s2MainBody', '物品費')     ? 0 : s2Goods)
-    + (hasMainRowOfCat('s2MainBody', '資料蒐集費') ? 0 : s2Data)
-    + s2Supp;
+  // ── 子表小計顯示 ──
+  setText('s1GoodsSubtotal', s1Goods.toFixed(3));
+  setText('s2GoodsSubtotal', s2Goods.toFixed(3));
+  setText('s1DataSubtotal',  s1Data.toFixed(3));
+  setText('s2DataSubtotal',  s2Data.toFixed(3));
 
-  document.getElementById('totalS1').textContent = totalS1.toFixed(2) + ' 仟元';
-  document.getElementById('totalS2').textContent = totalS2.toFixed(2) + ' 仟元';
-  document.getElementById('grandTotal').textContent = (totalS1 + totalS2).toFixed(2) + ' 仟元';
+  // ── 各學期合計（使用者填 + 三自動列）──
+  var s1UserMain = sumBody('s1MainBody');
+  var s2UserMain = sumBody('s2MainBody');
+  var s1Total = s1UserMain + s1Supp + s1Goods + s1Data;
+  var s2Total = s2UserMain + s2Supp + s2Goods + s2Data;
+
+  setText('s1MainSubtotal', s1Total.toFixed(2));
+  setText('s2MainSubtotal', s2Total.toFixed(2));
+
+  var grand = s1Total + s2Total;
+  setText('totalS1',    s1Total.toFixed(2) + ' 仟元');
+  setText('totalS2',    s2Total.toFixed(2) + ' 仟元');
+  setText('grandTotal', grand.toFixed(2) + ' 仟元');
+
+  // ── 雜支 20% 驗證 ──
+  var misc = sumBodyByCat('s1MainBody', '雜支（包含耗材）') + sumBodyByCat('s2MainBody', '雜支（包含耗材）');
+  var miscWarnEl = document.getElementById('miscWarning');
+  var miscTextEl = document.getElementById('miscWarnText');
+  if (miscWarnEl && miscTextEl) {
+    if (grand > 0 && misc / grand > 0.2) {
+      miscTextEl.textContent = '雜支（含耗材）合計 ' + misc.toFixed(3) + ' 仟元，佔年度總計 '
+        + (misc / grand * 100).toFixed(1) + '%，已超過上限 20%（上限：' + (grand * 0.2).toFixed(3) + ' 仟元）';
+      miscWarnEl.style.display = '';
+    } else {
+      miscWarnEl.style.display = 'none';
+    }
+  }
 }
 
 function collectMainRows(bodyId, semester) {
