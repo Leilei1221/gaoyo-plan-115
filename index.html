@@ -1623,7 +1623,7 @@ var CATEGORIES = [
   // ── 資本門 ──
   { label: "設備維護費",               price: "",      unit: "式",  hint: "" },
   { label: "軟體設計費／軟體授權費",   price: "",      unit: "式",  hint: "" },
-  { label: "設備及投資（資本門）",     price: "",      unit: "式",  hint: "" },
+  { label: "設備及投資（資本門）",     price: "",      unit: "式",  hint: "單價須高於 10 仟元（一萬元以上）；低於一萬請改填物品費", min: 10 },
   { label: "其他",                     price: "",      unit: "式",  hint: "" },
 ];
 
@@ -1745,13 +1745,17 @@ function recalcRow(tr) {
   var catLabel = catSel ? catSel.value : '';
   var catData = CATEGORIES.find(function(c) { return c.label === catLabel; });
   var warnEl = tr.querySelector('.price-warn');
-  var over = catData && catData.max != null && price > 0 && price > catData.max;
+  var over  = catData && catData.max != null && price > 0 && price > catData.max;
+  var under = catData && catData.min != null && price > 0 && price < catData.min;
+  var invalid = over || under;
   if (priceInput && !priceInput.readOnly) {
-    priceInput.style.borderColor  = over ? '#dc3545' : '';
-    priceInput.style.boxShadow    = over ? '0 0 0 2px rgba(220,53,69,.25)' : '';
+    priceInput.style.borderColor     = invalid ? '#dc3545' : '';
+    priceInput.style.boxShadow       = invalid ? '0 0 0 2px rgba(220,53,69,.25)' : '';
     priceInput.style.backgroundColor = '';
   }
-  if (warnEl) warnEl.textContent = over ? ('⚠ 超過上限 ' + catData.max + ' 仟元') : '';
+  var warnMsg = over  ? ('⚠ 超過上限 ' + catData.max + ' 仟元') :
+                under ? ('⚠ 單價須高於 ' + catData.min + ' 仟元（一萬元以上），低於一萬請改填物品費') : '';
+  if (warnEl) warnEl.textContent = warnMsg;
 
   updateSubtotals();
 }
