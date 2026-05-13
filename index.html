@@ -1700,14 +1700,14 @@ function recalcGoodsRow(tr) {
   var price = parseFloat(priceInput && priceInput.value) || 0;
   var disp = tr.querySelector('.amount-display');
   if (disp) disp.textContent = (qty * price).toFixed(3);
-  // 物品費單價上限 10 仟元（10,000 元）
+  // 物品費單價須低於 10 仟元（9,999 元以下）
   var warnEl = tr.querySelector('.price-warn');
-  var over = price > 10;
+  var over = price >= 10;
   if (priceInput) {
     priceInput.style.borderColor    = over ? '#dc3545' : '';
     priceInput.style.boxShadow      = over ? '0 0 0 2px rgba(220,53,69,.25)' : '';
   }
-  if (warnEl) warnEl.textContent = over ? '⚠ 超過上限 10 仟元（10,000 元）' : '';
+  if (warnEl) warnEl.textContent = over ? '⚠ 單價須低於 10 仟元（9,999 元以下）' : '';
   updateSubtotals();
 }
 
