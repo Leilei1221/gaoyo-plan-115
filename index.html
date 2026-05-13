@@ -1588,10 +1588,20 @@ function onCategoryChange(sel) {
   if (unitInput && unit) unitInput.value = unit;
   if (priceInput && price) priceInput.value = price;
   if (hintEl) hintEl.textContent = hintData && hintData.hint ? '參考：' + hintData.hint : '';
-  // 切換類別時清除舊警示，再重新計算
+
+  // 物品費 / 資料蒐集費：鎖定數量＆單價，由子表自動帶入
+  var isAutoSync = (sel.value === '物品費' || sel.value === '資料蒐集費');
+  var qtyInput = row.querySelector('.qty-input');
+  if (qtyInput) qtyInput.readOnly = isAutoSync;
+  if (priceInput) {
+    priceInput.readOnly = isAutoSync;
+    priceInput.style.borderColor = '';
+    priceInput.style.boxShadow = '';
+    priceInput.style.backgroundColor = isAutoSync ? '#e8f4ec' : '';
+  }
   var warnEl = row.querySelector('.price-warn');
   if (warnEl) warnEl.textContent = '';
-  if (priceInput) priceInput.classList.remove('is-invalid');
+
   recalcRow(row);
 }
 
@@ -1661,18 +1671,18 @@ function recalcRow(tr) {
   var disp = tr.querySelector('.amount-display');
   if (disp) disp.textContent = amount.toFixed(2);
 
-  // 單價上限檢查
+  // 單價上限檢查（用 inline style 確保顯示，不依賴 CSS 優先權）
   var catSel = tr.querySelector('.category-sel');
   var catLabel = catSel ? catSel.value : '';
   var catData = CATEGORIES.find(function(c) { return c.label === catLabel; });
   var warnEl = tr.querySelector('.price-warn');
-  if (catData && catData.max != null && price > catData.max) {
-    if (priceInput) priceInput.classList.add('is-invalid');
-    if (warnEl) warnEl.textContent = '⚠ 超過上限 ' + catData.max + ' 仟元';
-  } else {
-    if (priceInput) priceInput.classList.remove('is-invalid');
-    if (warnEl) warnEl.textContent = '';
+  var over = catData && catData.max != null && price > 0 && price > catData.max;
+  if (priceInput && !priceInput.readOnly) {
+    priceInput.style.borderColor  = over ? '#dc3545' : '';
+    priceInput.style.boxShadow    = over ? '0 0 0 2px rgba(220,53,69,.25)' : '';
+    priceInput.style.backgroundColor = '';
   }
+  if (warnEl) warnEl.textContent = over ? ('⚠ 超過上限 ' + catData.max + ' 仟元') : '';
 
   updateSubtotals();
 }
@@ -1700,13 +1710,53 @@ function honorariumSum(bodyId) {
   return total;
 }
 
+// 自動將子表合計帶入主表對應列
+function syncMainRow(bodyId, catLabel, total) {
+  document.querySelectorAll('#' + bodyId + ' tr').forEach(function(tr) {
+    var catSel = tr.querySelector('.category-sel');
+    if (!catSel || catSel.value !== catLabel) return;
+    var qtyInput   = tr.querySelector('.qty-input');
+    var priceInput = tr.querySelector('.price-input');
+    var amountDisp = tr.querySelector('.amount-display');
+    if (qtyInput)   { qtyInput.value = 1; qtyInput.readOnly = true; }
+    if (priceInput) {
+      priceInput.value = total.toFixed(3);
+      priceInput.readOnly = true;
+      priceInput.style.borderColor = '';
+      priceInput.style.boxShadow   = '';
+      priceInput.style.backgroundColor = '#e8f4ec';
+    }
+    if (amountDisp) amountDisp.textContent = total.toFixed(3);
+  });
+}
+
+// 主表中是否已有指定類別列（有就不另加，避免重複計算）
+function hasMainRowOfCat(bodyId, catLabel) {
+  var rows = document.querySelectorAll('#' + bodyId + ' tr');
+  for (var i = 0; i < rows.length; i++) {
+    var sel = rows[i].querySelector('.category-sel');
+    if (sel && sel.value === catLabel) return true;
+  }
+  return false;
+}
+
 function updateSubtotals() {
-  var s1Main  = sumBody('s1MainBody');
-  var s2Main  = sumBody('s2MainBody');
+  // 1. 先算子表
   var s1Goods = sumBody('s1GoodsBody');
   var s2Goods = sumBody('s2GoodsBody');
   var s1Data  = sumBody('s1DataBody');
   var s2Data  = sumBody('s2DataBody');
+
+  // 2. 同步子表合計到主表對應列（物品費 / 資料蒐集費）
+  syncMainRow('s1MainBody', '物品費',     s1Goods);
+  syncMainRow('s2MainBody', '物品費',     s2Goods);
+  syncMainRow('s1MainBody', '資料蒐集費', s1Data);
+  syncMainRow('s2MainBody', '資料蒐集費', s2Data);
+
+  // 3. 再算主表（已包含同步後的列）
+  var s1Main = sumBody('s1MainBody');
+  var s2Main = sumBody('s2MainBody');
+
   var s1Supp = honorariumSum('s1MainBody') * 0.0211;
   var s2Supp = honorariumSum('s2MainBody') * 0.0211;
 
@@ -1717,8 +1767,16 @@ function updateSubtotals() {
   document.getElementById('s1DataSubtotal').textContent = s1Data.toFixed(3);
   document.getElementById('s2DataSubtotal').textContent = s2Data.toFixed(3);
 
-  var totalS1 = s1Main + s1Goods + s1Data + s1Supp;
-  var totalS2 = s2Main + s2Goods + s2Data + s2Supp;
+  // 4. 總計：主表中已有物品費/資料蒐集費列者不重複加
+  var totalS1 = s1Main
+    + (hasMainRowOfCat('s1MainBody', '物品費')     ? 0 : s1Goods)
+    + (hasMainRowOfCat('s1MainBody', '資料蒐集費') ? 0 : s1Data)
+    + s1Supp;
+  var totalS2 = s2Main
+    + (hasMainRowOfCat('s2MainBody', '物品費')     ? 0 : s2Goods)
+    + (hasMainRowOfCat('s2MainBody', '資料蒐集費') ? 0 : s2Data)
+    + s2Supp;
+
   document.getElementById('totalS1').textContent = totalS1.toFixed(2) + ' 仟元';
   document.getElementById('totalS2').textContent = totalS2.toFixed(2) + ' 仟元';
   document.getElementById('grandTotal').textContent = (totalS1 + totalS2).toFixed(2) + ' 仟元';
