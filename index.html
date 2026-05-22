@@ -68,14 +68,45 @@
     .delete-btn { color: #dc3545; border: none; background: none; padding: 0 4px; font-size: 1rem; }
     .delete-btn:hover { color: #a71d2a; }
     #b_successBanner { display: none; }
+    /* ── Firebase 新增樣式 ── */
+    .memo-section { background: #fffef0; border: 1px dashed #ffc107; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+    .memo-section .section-title { border-bottom-color: #ffc10750; color: #856404; }
+    .save-chip { font-size: .75rem; padding: .15rem .5rem; border-radius: 12px; }
+    @keyframes slideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .toast-item { animation: slideIn .25s ease; border-radius: 8px; min-width: 240px; max-width: 380px; }
   </style>
 </head>
 <body>
 
+<!-- ── 登入遮罩 ── -->
+<div id="loginOverlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1a56db 0%,#0e3fa3 100%);display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:2.5rem;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:2.8rem;margin-bottom:.5rem">🏫</div>
+    <h4 class="fw-bold mb-1">115學年度優高計畫書</h4>
+    <p class="text-muted small mb-3">國立花蓮高中 · 僅限 <strong>@hlhs.hlc.edu.tw</strong> 帳號登入</p>
+    <button id="loginBtn" class="btn btn-primary btn-lg w-100 mb-2" onclick="signInWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="height:20px;margin-right:8px;vertical-align:middle">
+      使用 Google 帳號登入
+    </button>
+    <div id="loginError" class="alert alert-danger py-2 small d-none mt-2 text-start"></div>
+    <div class="text-muted" style="font-size:.72rem;margin-top:.75rem">請使用學校帳號（@hlhs.hlc.edu.tw）登入，其他帳號將被拒絕</div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+
 <div class="header-bar">
-  <div class="container">
-    <h4 class="mb-1 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>115學年度優高計畫書填寫</h4>
-    <div class="opacity-75 small">國立花蓮高中 · 高中優質化輔助方案 · 填完計畫書請切換至「經費概算」頁籤</div>
+  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h4 class="mb-0 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>115學年度優高計畫書填寫</h4>
+      <div class="opacity-75 small">國立花蓮高中 · 高中優質化輔助方案</div>
+    </div>
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <div id="saveStatus" class="text-white save-chip opacity-75"></div>
+      <div class="text-white small"><i class="bi bi-person-circle me-1"></i><span id="userDisplayName"></span></div>
+      <a id="adminLink" href="admin.html" class="btn btn-warning btn-sm" style="display:none"><i class="bi bi-shield-lock me-1"></i>管理後台</a>
+      <button onclick="signOutUser()" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>登出</button>
+    </div>
   </div>
 </div>
 
@@ -280,35 +311,6 @@
         </div>
 
         <div class="col-12">
-          <label class="form-label fw-semibold">課程面規劃項目（可複選）</label>
-          <div class="d-flex flex-wrap gap-3">
-            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="講座"><label class="form-check-label">講座</label></div>
-            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="戶外踏查"><label class="form-check-label">戶外踏查</label></div>
-            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="實作課程"><label class="form-check-label">實作課程</label></div>
-            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="入班授課"><label class="form-check-label">入班授課</label></div>
-            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:160px" placeholder="請說明..."></div>
-          </div>
-        </div>
-
-        <div class="col-12" id="a1-gact-block">
-          <label class="form-label fw-semibold">社群面規劃項目（可複選）</label>
-          <div class="checkbox-grid">
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="計畫發展與檢討會議"><label class="form-check-label">計畫發展與檢討會議</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程研發與教材教法"><label class="form-check-label">課程研發與教材教法</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程共備與研討"><label class="form-check-label">課程共備與研討</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="公開觀議課"><label class="form-check-label">公開觀議課</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養導向課程與教學"><label class="form-check-label">素養導向課程與教學</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="學科地圖"><label class="form-check-label">學科地圖</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養命題與實作評量"><label class="form-check-label">素養命題與實作評量</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="雙語教學增能"><label class="form-check-label">雙語教學增能</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="AI工具融入教學"><label class="form-check-label">AI工具融入教學</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="資訊融入教學"><label class="form-check-label">資訊融入教學</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="跨域協作"><label class="form-check-label">跨域協作</label></div>
-            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:160px" placeholder="請說明..."></div>
-          </div>
-        </div>
-
-        <div class="col-12">
           <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
           <div class="hint mb-1">格式：1.對象（人數）2.主要活動數量：X場 3.內容：... 4.預期成效：...</div>
           <textarea id="a1_goal" class="form-control" rows="4" placeholder="請依格式填寫..."></textarea>
@@ -331,6 +333,60 @@
             <div class="col-12">
               <label class="form-label fw-semibold">社群活動說明</label>
               <textarea id="a1_community_desc" class="form-control" rows="3" placeholder="社群主要活動內容、次數、辦理方式..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 自我檢視備忘區（115年新版移出欄位，僅自動存檔，不列入送出資料）── -->
+      <div class="memo-section mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="section-title mb-0" style="border-bottom:none;padding-bottom:0">
+            <i class="bi bi-pencil-square me-1 text-warning"></i>自我檢視備忘區
+          </div>
+          <button class="btn btn-sm btn-outline-warning py-0 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#a1MemoBody">
+            <i class="bi bi-chevron-down"></i> 展開 / 收合
+          </button>
+        </div>
+        <div class="alert alert-warning py-1 px-2 small mb-2">
+          <i class="bi bi-info-circle me-1"></i>此區為 115年新版移出欄位，供老師自我檢視使用，<strong>不列入送出資料</strong>，但會自動存檔。
+        </div>
+        <div id="a1MemoBody" class="collapse">
+          <div class="row g-3">
+            <div class="col-12" id="a1-gact-block">
+              <label class="form-label fw-semibold small">【社群面】規劃項目（可複選）</label>
+              <div class="checkbox-grid">
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="計畫發展與檢討會議"><label class="form-check-label">計畫發展與檢討會議</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程研發與教材教法"><label class="form-check-label">課程研發與教材教法</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程共備與研討"><label class="form-check-label">課程共備與研討</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="公開觀議課"><label class="form-check-label">公開觀議課</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養導向課程與教學"><label class="form-check-label">素養導向課程與教學</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="學科地圖"><label class="form-check-label">學科地圖</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養命題與實作評量"><label class="form-check-label">素養命題與實作評量</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="雙語教學增能"><label class="form-check-label">雙語教學增能</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="AI工具融入教學"><label class="form-check-label">AI工具融入教學</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="資訊融入教學"><label class="form-check-label">資訊融入教學</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="跨域協作"><label class="form-check-label">跨域協作</label></div>
+                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:160px" placeholder="請說明..."></div>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small">【課程面】規劃項目（可複選）</label>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="講座"><label class="form-check-label">講座</label></div>
+                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="戶外踏查"><label class="form-check-label">戶外踏查</label></div>
+                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="實作課程"><label class="form-check-label">實作課程</label></div>
+                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="入班授課"><label class="form-check-label">入班授課</label></div>
+                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:160px" placeholder="請說明..."></div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">AI 工具應用說明（選填）</label>
+              <textarea id="a1_memo_ai_notes" class="form-control form-control-sm" rows="2" placeholder="如何在課程/社群中運用 AI 工具..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">教學省思與精進方向（選填）</label>
+              <textarea id="a1_memo_reflection" class="form-control form-control-sm" rows="2" placeholder="本學年反思與下一步精進計畫..."></textarea>
             </div>
           </div>
         </div>
@@ -761,13 +817,21 @@
 
     <!-- ── 送出按鈕 ── -->
     <div id="submitArea" class="d-none mt-4 pt-3 border-top">
-      <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div class="text-muted small">
-          <i class="bi bi-shield-check me-1"></i>資料將儲存至花蓮高中優高計畫試算表
+          <i class="bi bi-cloud-check me-1"></i>資料將儲存至 Firebase Firestore
         </div>
-        <button type="button" class="btn btn-primary px-4" id="submitBtn" onclick="submitForm()">
-          <i class="bi bi-send-fill me-2"></i>確認送出
-        </button>
+        <div class="d-flex gap-2 flex-wrap">
+          <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadPlanExcel()">
+            <i class="bi bi-file-earmark-excel me-1"></i>下載 Excel
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadPlanToDrive()">
+            <i class="bi bi-google me-1"></i>存到 Google Drive
+          </button>
+          <button type="button" class="btn btn-primary px-4" id="submitBtn" onclick="submitForm()">
+            <i class="bi bi-send-fill me-2"></i>確認送出
+          </button>
+        </div>
       </div>
     </div>
   </div><!-- /card -->
@@ -1089,16 +1153,518 @@
     <button class="btn btn-success btn-lg" onclick="submitBudget()" id="b_submitBtn">
       <i class="bi bi-send me-2"></i>送出經費概算
     </button>
+    <div class="d-flex gap-2 justify-content-center flex-wrap">
+      <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadBudgetExcel()">
+        <i class="bi bi-file-earmark-excel me-1"></i>下載 Excel
+      </button>
+      <button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadBudgetToDrive()">
+        <i class="bi bi-google me-1"></i>存到 Google Drive
+      </button>
+    </div>
   </div>
 
 </div><!-- /budget container -->
 </div><!-- /tabBudget -->
 
 </div><!-- /tab-content -->
+</div><!-- /app -->
 
+<!-- Toast 通知容器 -->
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:8000;display:flex;flex-direction:column;gap:.5rem;pointer-events:none"></div>
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- SheetJS -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ── 請將此處替換為您的 GAS Web App URL ──
+// ════════════════════════════════════════════════════════
+// Firebase 設定與初始化
+// ════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyAZqaRTBRSsg4gna5ZoOt39mraiF_epgEI",
+  authDomain: "gen-lang-client-0521191004.firebaseapp.com",
+  projectId: "gen-lang-client-0521191004",
+  storageBucket: "gen-lang-client-0521191004.firebasestorage.app",
+  messagingSenderId: "1089473790781",
+  appId: "1:1089473790781:web:a2f22b4729a9918446bb54"
+};
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db   = firebase.firestore();
+
+var ALLOWED_DOMAIN  = 'hlhs.hlc.edu.tw';
+var ADMIN_EMAIL     = 'phyllis@hlhs.hlc.edu.tw';
+var COL_DRAFTS      = 'gaoyo_drafts';
+var COL_PLANS       = 'gaoyo_plans';
+var COL_BUDGETS     = 'gaoyo_budgets';
+var COL_USERS       = 'gaoyo_users';
+
+var currentUser        = null;
+var googleAccessToken  = null;
+
+// ── Auth ──
+function signInWithGoogle() {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/drive.file');
+  provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
+  document.getElementById('loginBtn').disabled = true;
+  document.getElementById('loginError').classList.add('d-none');
+  auth.signInWithPopup(provider)
+    .then(function(result) {
+      googleAccessToken = result.credential.accessToken;
+      if (!result.user.email.endsWith('@' + ALLOWED_DOMAIN)) {
+        auth.signOut();
+        showLoginErr('僅限 @' + ALLOWED_DOMAIN + ' 帳號，您的帳號無法使用此系統。');
+      }
+    })
+    .catch(function(err) {
+      var msg = err.code === 'auth/popup-closed-by-user' ? '登入視窗被關閉，請再試一次。' : err.message;
+      showLoginErr('登入失敗：' + msg);
+      document.getElementById('loginBtn').disabled = false;
+    });
+}
+
+function showLoginErr(msg) {
+  var el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.classList.remove('d-none');
+  document.getElementById('loginBtn').disabled = false;
+}
+
+function signOutUser() {
+  if (confirm('確定要登出嗎？')) auth.signOut();
+}
+
+auth.onAuthStateChanged(function(user) {
+  if (user && user.email.endsWith('@' + ALLOWED_DOMAIN)) {
+    currentUser = user;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('app').style.display = '';
+    document.getElementById('userDisplayName').textContent = user.displayName || user.email;
+    if (user.email === ADMIN_EMAIL) {
+      document.getElementById('adminLink').style.display = '';
+    }
+    // 更新使用者登入紀錄
+    var userRef = db.collection(COL_USERS).doc(user.uid);
+    userRef.set({
+      email: user.email, displayName: user.displayName || '', photoURL: user.photoURL || '',
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    userRef.update({ firstLogin: firebase.firestore.FieldValue.serverTimestamp() })
+      .catch(function(){}); // 只有第一次才設定，之後 set(merge) 不會覆蓋
+    loadDraft();
+    setupAutoSave();
+  } else {
+    currentUser = null;
+    document.getElementById('loginOverlay').style.display = '';
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+// ── Auto-save（每 3 秒存一次） ──
+var _draftTimer = null;
+
+function setupAutoSave() {
+  ['tabPlan','tabBudget'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input',  scheduleDraftSave);
+      el.addEventListener('change', scheduleDraftSave);
+    }
+  });
+}
+
+function scheduleDraftSave() {
+  clearTimeout(_draftTimer);
+  showSaveStatus('pending');
+  _draftTimer = setTimeout(saveDraft, 3000);
+}
+
+function saveDraft() {
+  if (!currentUser) return;
+  showSaveStatus('saving');
+  db.collection(COL_DRAFTS).doc(currentUser.uid).set({
+    plan:      collectDraftPlan(),
+    budget:    collectDraftBudget(),
+    userEmail: currentUser.email,
+    lastSaved: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true })
+  .then(function() { showSaveStatus('saved'); })
+  .catch(function(e) { console.error(e); showSaveStatus('error'); });
+}
+
+function showSaveStatus(status) {
+  var el = document.getElementById('saveStatus');
+  if (!el) return;
+  var now = new Date();
+  var t   = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  var html = {
+    pending: '<span style="opacity:.6">⏳ 待儲存...</span>',
+    saving:  '<span><span class="spinner-border spinner-border-sm" style="width:.7rem;height:.7rem"></span> 儲存中</span>',
+    saved:   '<span>✅ 已儲存 ' + t + '</span>',
+    error:   '<span>⚠ 儲存失敗</span>'
+  };
+  el.innerHTML = html[status] || '';
+}
+
+// ── 收集草稿（計畫書） ──
+function collectDraftPlan() {
+  function _v(id)   { var e=document.getElementById(id); return e?e.value.trim():''; }
+  function _r(name) { var e=document.querySelector('input[name="'+name+'"]:checked'); return e?e.value:''; }
+  function _c(cls)  {
+    return Array.from(document.querySelectorAll('.'+cls+':checked')).map(function(e){
+      if(e.value==='其他'||/\d+\.其他$/.test(e.value)){
+        var inp=e.closest('.form-check')&&e.closest('.form-check').querySelector('.other-input');
+        var txt=inp?inp.value.trim():'';
+        return txt?e.value+'：'+txt:e.value;
+      }
+      return e.value;
+    });
+  }
+  return {
+    f_name:_v('f_name'), f_subject:_v('f_subject'), f_plan_name:_v('f_plan_name'),
+    plan_name_type: document.getElementById('typeC')&&document.getElementById('typeC').checked?'course':'community',
+    sub_plan: document.getElementById('f_sub_plan')?document.getElementById('f_sub_plan').value:'',
+    a1_course_code:_v('a1_course_code'), a1_course_type:_r('a1_course_type'),
+    a1_competencies:_c('a1-competency'), a1_abilities:_c('a1-ability'),
+    a1_domain_s1:_r('a1_domain_s1'), a1_domain_s2:_r('a1_domain_s2'),
+    a1_goal:_v('a1_goal'), a1_achievement:_r('a1_achievement'),
+    a1_community_members:_v('a1_community_members'), a1_community_desc:_v('a1_community_desc'),
+    a1_memo_cact:_c('a1-cact'), a1_memo_gact:_c('a1-gact'),
+    a1_memo_ai_notes:_v('a1_memo_ai_notes'), a1_memo_reflection:_v('a1_memo_reflection'),
+    a2_goal_desc:_v('a2_goal_desc'), a2_work:_c('a2-work'), a2_plan:_c('a2-plan'),
+    a2_goal:_v('a2_goal'), a2_achievement:_r('a2_achievement'), a2_notes:_v('a2_notes'),
+    b11_goal_desc:_v('b11_goal_desc'), b11_members:_v('b11_members'),
+    b11_done114:_c('b11-done114'), b11_plan115:_c('b11-plan115'),
+    b11_goal:_v('b11_goal'), b11_achievement:_r('b11_achievement'),
+    b12_course_type:_v('b12_course_type'), b12_course_domain:_v('b12_course_domain'),
+    b12_course_goal:_v('b12_course_goal'), b12_platforms:_c('b12-platform'),
+    b12_done114:_c('b12-done114'), b12_plan115:_c('b12-plan115'),
+    b12_implementation:_v('b12_implementation'), b12_goal:_v('b12_goal'), b12_achievement:_r('b12_achievement'),
+    b13_school_type:_r('b13_school_type'), b13_role:_r('b13_role'), b13_domain:_r('b13_domain'),
+    b13_platforms:_c('b13-platform'), b13_content:_v('b13_content'),
+    b13_done114:_c('b13-done114'), b13_plan115:_c('b13-plan115'),
+    b13_goal:_v('b13_goal'), b13_achievement:_r('b13_achievement'),
+    b2_plan_goal:_v('b2_plan_goal'), b2_sel_team:_v('b2_sel_team'), b2_members:_v('b2_members'),
+    b2_work:_c('b2-work'), b2_course_name:_v('b2_course_name'), b2_course_domain:_v('b2_course_domain'),
+    b2_strategy:_v('b2_strategy'), b2_goal:_v('b2_goal'), b2_achievement:_r('b2_achievement'),
+    b3_goal_desc:_v('b3_goal_desc'), b3_strategy:_v('b3_strategy'),
+    b3_activities:_c('b3-activity'), b3_goal:_v('b3_goal'), b3_achievement:_r('b3_achievement'),
+    c_plan_subtype:_r('c_plan_subtype'), c_goal_desc:_v('c_goal_desc'), c_strategy:_v('c_strategy'),
+    c_activities:_c('c-activity'), c_goal:_v('c_goal'), c_achievement:_r('c_achievement')
+  };
+}
+
+function collectDraftBudget() {
+  function _v(id) { var e=document.getElementById(id); return e?e.value.trim():''; }
+  function serRows(bodyId, hasCat) {
+    var rows=[];
+    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
+      var row = {
+        unit:      (tr.querySelector('.unit-input')  && tr.querySelector('.unit-input').value)  || '',
+        quantity:  (tr.querySelector('.qty-input')   && tr.querySelector('.qty-input').value)   || '',
+        unit_price:(tr.querySelector('.price-input') && tr.querySelector('.price-input').value) || ''
+      };
+      if(hasCat){
+        row.category    = (tr.querySelector('.category-sel') && tr.querySelector('.category-sel').value) || '';
+        row.description = (tr.querySelector('.desc-input')   && tr.querySelector('.desc-input').value)   || '';
+      } else {
+        row.name = (tr.querySelector('.desc-input') && tr.querySelector('.desc-input').value) || '';
+      }
+      rows.push(row);
+    });
+    return rows;
+  }
+  return {
+    b_name:_v('b_name'), b_subject:_v('b_subject'),
+    b_sub_plan_type:_v('b_sub_plan_type'), b_plan_name:_v('b_plan_name'),
+    s1MainRows:  serRows('s1MainBody',  true),  s2MainRows:  serRows('s2MainBody',  true),
+    s1GoodsRows: serRows('s1GoodsBody', false), s2GoodsRows: serRows('s2GoodsBody', false),
+    s1DataRows:  serRows('s1DataBody',  false), s2DataRows:  serRows('s2DataBody',  false)
+  };
+}
+
+// ── 載入草稿 ──
+function loadDraft() {
+  if (!currentUser) return;
+  db.collection(COL_DRAFTS).doc(currentUser.uid).get()
+    .then(function(doc) {
+      if (!doc.exists) return;
+      var d = doc.data();
+      if (d.plan)   restoreDraftPlan(d.plan);
+      if (d.budget) restoreDraftBudget(d.budget);
+      if (d.lastSaved) {
+        showSaveStatus('saved');
+        var ts = d.lastSaved.toDate();
+        var str = ts.toLocaleDateString('zh-TW') + ' ' + ts.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+        showToast('✅ 已恢復上次填寫進度（' + str + '）', 'success');
+      }
+    })
+    .catch(function(e){ console.error('Draft load:', e); });
+}
+
+function restoreDraftPlan(d) {
+  function _s(id,val){ if(val){ var e=document.getElementById(id); if(e) e.value=val; } }
+  function _r(name,val){
+    if(!val) return;
+    var el=document.querySelector('input[name="'+name+'"][value="'+val.replace(/"/g,'\\"')+'"]');
+    if(el) el.checked=true;
+  }
+  function _c(cls,vals){
+    if(!vals||!vals.length) return;
+    document.querySelectorAll('.'+cls).forEach(function(cb){
+      cb.checked = vals.some(function(v){ return v===cb.value||v.startsWith(cb.value+'：'); });
+      if(cb.checked){
+        var inp=cb.closest('.form-check')&&cb.closest('.form-check').querySelector('.other-input');
+        if(inp){ inp.style.display=''; vals.forEach(function(v){ if(v.startsWith(cb.value+'：')) inp.value=v.substring(cb.value.length+1); }); }
+      }
+    });
+  }
+  _s('f_name',d.f_name); _s('f_subject',d.f_subject); _s('f_plan_name',d.f_plan_name);
+  if(d.plan_name_type){
+    var typeEl=document.getElementById(d.plan_name_type==='community'?'typeG':'typeC');
+    if(typeEl){ typeEl.checked=true; updateNameLabel(); }
+  }
+  if(d.sub_plan){ var sp=document.getElementById('f_sub_plan'); if(sp){ sp.value=d.sub_plan; showPlanSection(); } }
+  _s('a1_course_code',d.a1_course_code); _r('a1_course_type',d.a1_course_type);
+  _c('a1-competency',d.a1_competencies); _c('a1-ability',d.a1_abilities);
+  _r('a1_domain_s1',d.a1_domain_s1); _r('a1_domain_s2',d.a1_domain_s2);
+  _s('a1_goal',d.a1_goal); _r('a1_achievement',d.a1_achievement);
+  _s('a1_community_members',d.a1_community_members); _s('a1_community_desc',d.a1_community_desc);
+  _c('a1-cact',d.a1_memo_cact); _c('a1-gact',d.a1_memo_gact);
+  _s('a1_memo_ai_notes',d.a1_memo_ai_notes); _s('a1_memo_reflection',d.a1_memo_reflection);
+  _s('a2_goal_desc',d.a2_goal_desc); _c('a2-work',d.a2_work); _c('a2-plan',d.a2_plan);
+  _s('a2_goal',d.a2_goal); _r('a2_achievement',d.a2_achievement); _s('a2_notes',d.a2_notes);
+  _s('b11_goal_desc',d.b11_goal_desc); _s('b11_members',d.b11_members);
+  _c('b11-done114',d.b11_done114); _c('b11-plan115',d.b11_plan115);
+  _s('b11_goal',d.b11_goal); _r('b11_achievement',d.b11_achievement);
+  _s('b12_course_type',d.b12_course_type); _s('b12_course_domain',d.b12_course_domain);
+  _s('b12_course_goal',d.b12_course_goal); _c('b12-platform',d.b12_platforms);
+  _c('b12-done114',d.b12_done114); _c('b12-plan115',d.b12_plan115);
+  _s('b12_implementation',d.b12_implementation); _s('b12_goal',d.b12_goal); _r('b12_achievement',d.b12_achievement);
+  _r('b13_school_type',d.b13_school_type); _r('b13_role',d.b13_role); _r('b13_domain',d.b13_domain);
+  _c('b13-platform',d.b13_platforms); _s('b13_content',d.b13_content);
+  _c('b13-done114',d.b13_done114); _c('b13-plan115',d.b13_plan115);
+  _s('b13_goal',d.b13_goal); _r('b13_achievement',d.b13_achievement);
+  _s('b2_plan_goal',d.b2_plan_goal); _s('b2_sel_team',d.b2_sel_team); _s('b2_members',d.b2_members);
+  _c('b2-work',d.b2_work); _s('b2_course_name',d.b2_course_name); _s('b2_course_domain',d.b2_course_domain);
+  _s('b2_strategy',d.b2_strategy); _s('b2_goal',d.b2_goal); _r('b2_achievement',d.b2_achievement);
+  _s('b3_goal_desc',d.b3_goal_desc); _s('b3_strategy',d.b3_strategy);
+  _c('b3-activity',d.b3_activities); _s('b3_goal',d.b3_goal); _r('b3_achievement',d.b3_achievement);
+  _r('c_plan_subtype',d.c_plan_subtype); _s('c_goal_desc',d.c_goal_desc); _s('c_strategy',d.c_strategy);
+  _c('c-activity',d.c_activities); _s('c_goal',d.c_goal); _r('c_achievement',d.c_achievement);
+  if(d.sub_plan) toggleA1Fields();
+}
+
+function restoreDraftBudget(d) {
+  function _s(id,val){ if(val){ var e=document.getElementById(id); if(e) e.value=val; } }
+  _s('b_name',d.b_name); _s('b_subject',d.b_subject);
+  _s('b_sub_plan_type',d.b_sub_plan_type); _s('b_plan_name',d.b_plan_name);
+
+  function restoreMainRows(rows, bodyId, prefix) {
+    if(!rows||!rows.length) return;
+    document.getElementById(bodyId).innerHTML='';
+    rows.forEach(function(row){
+      addRow(bodyId, prefix);
+      var tr = document.getElementById(bodyId).lastElementChild;
+      var catSel = tr.querySelector('.category-sel');
+      if(catSel&&row.category){ catSel.value=row.category; onCategoryChange(catSel); }
+      var di=tr.querySelector('.desc-input'); if(di) di.value=row.description||'';
+      var ui=tr.querySelector('.unit-input'); if(ui) ui.value=row.unit||'';
+      var qi=tr.querySelector('.qty-input');  if(qi) qi.value=row.quantity||'';
+      var pi=tr.querySelector('.price-input');if(pi) pi.value=row.unit_price||'';
+      recalcRow(tr);
+    });
+  }
+  function restoreSimpleRows(rows, bodyId, prefix, addFn) {
+    if(!rows||!rows.length) return;
+    document.getElementById(bodyId).innerHTML='';
+    rows.forEach(function(row){
+      addFn(bodyId, prefix);
+      var tr = document.getElementById(bodyId).lastElementChild;
+      var di=tr.querySelector('.desc-input'); if(di) di.value=row.name||'';
+      var ui=tr.querySelector('.unit-input'); if(ui) ui.value=row.unit||'';
+      var qi=tr.querySelector('.qty-input');  if(qi) qi.value=row.quantity||'';
+      var pi=tr.querySelector('.price-input');if(pi) pi.value=row.unit_price||'';
+      recalcRow(tr);
+    });
+  }
+  restoreMainRows(d.s1MainRows,  's1MainBody',  's1Main');
+  restoreMainRows(d.s2MainRows,  's2MainBody',  's2Main');
+  restoreSimpleRows(d.s1GoodsRows, 's1GoodsBody', 's1Goods', addGoodsRow);
+  restoreSimpleRows(d.s2GoodsRows, 's2GoodsBody', 's2Goods', addGoodsRow);
+  restoreSimpleRows(d.s1DataRows,  's1DataBody',  's1Data',  addDataRow);
+  restoreSimpleRows(d.s2DataRows,  's2DataBody',  's2Data',  addDataRow);
+  updateSubtotals();
+}
+
+// ── Toast 通知 ──
+function showToast(msg, type) {
+  type = type || 'success';
+  var div = document.createElement('div');
+  div.className = 'alert alert-' + type + ' py-2 px-3 shadow toast-item mb-0';
+  div.style.cssText = 'pointer-events:auto;cursor:pointer';
+  div.innerHTML = msg;
+  div.onclick = function(){ div.remove(); };
+  var container = document.getElementById('toastContainer');
+  if(container) {
+    container.appendChild(div);
+    setTimeout(function(){ div.style.transition='opacity .5s'; div.style.opacity='0'; setTimeout(function(){div.remove();},500); }, 4500);
+  }
+}
+
+// ── Excel 下載（計畫書） ──
+function downloadPlanExcel() {
+  var payload = buildPayload();
+  var name = payload.name || '計畫書';
+  var wb = XLSX.utils.book_new();
+  var rows = [['欄位','內容']];
+  var labels = {
+    name:'姓名', subject:'科別', plan_name:'計畫名稱', sub_plan_type:'子計畫',
+    plan_name_type:'課程或社群', goal_description:'預期目標', achievement:'預期目標自評',
+    course_code:'分支序號', course_type:'課程類型', domain_s1:'課程領域(上)', domain_s2:'課程領域(下)',
+    community_members:'社群成員', community_activity_desc:'社群活動描述',
+    plan_goal:'計畫目標', sel_core_team:'SEL核心小組', strategy:'實施策略',
+    goal:'計畫目標', members:'核心小組名單', content:'課程內容'
+  };
+  Object.keys(payload).forEach(function(k){
+    if(['userId','userEmail','displayName','submittedAt','images'].includes(k)) return;
+    var val = Array.isArray(payload[k]) ? payload[k].join('、') : (payload[k]||'');
+    if(val) rows.push([labels[k]||k, val]);
+  });
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:22},{wch:65}];
+  XLSX.utils.book_append_sheet(wb, ws, '計畫書');
+  XLSX.writeFile(wb, name + '_' + (payload.sub_plan_type||'') + '_115優高計畫.xlsx');
+  showToast('📥 Excel 已下載');
+}
+
+// ── Excel 下載（經費概算） ──
+function downloadBudgetExcel() {
+  var name = (document.getElementById('b_name')&&document.getElementById('b_name').value.trim()) || '經費概算';
+  var subPlan = (document.getElementById('b_sub_plan_type')&&document.getElementById('b_sub_plan_type').value) || '';
+  var wb = XLSX.utils.book_new();
+
+  function mainSheet(bodyId) {
+    var rows=[['費用類別','項目說明','單位','數量','單價(仟)','金額(仟)']];
+    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
+      var cat=(tr.querySelector('.category-sel')&&tr.querySelector('.category-sel').value)||'';
+      var desc=(tr.querySelector('.desc-input')&&tr.querySelector('.desc-input').value)||'';
+      var unit=(tr.querySelector('.unit-input')&&tr.querySelector('.unit-input').value)||'';
+      var qty=parseFloat((tr.querySelector('.qty-input')&&tr.querySelector('.qty-input').value))||0;
+      var price=parseFloat((tr.querySelector('.price-input')&&tr.querySelector('.price-input').value))||0;
+      if(cat||desc||qty) rows.push([cat,desc,unit,qty,price,parseFloat((qty*price).toFixed(4))]);
+    });
+    return rows;
+  }
+  function simpleSheet(bodyId) {
+    var rows=[['品名規格','單位','數量','單價(仟)','金額(仟)']];
+    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
+      var n=(tr.querySelector('.desc-input')&&tr.querySelector('.desc-input').value)||'';
+      var u=(tr.querySelector('.unit-input')&&tr.querySelector('.unit-input').value)||'';
+      var q=parseFloat((tr.querySelector('.qty-input')&&tr.querySelector('.qty-input').value))||0;
+      var p=parseFloat((tr.querySelector('.price-input')&&tr.querySelector('.price-input').value))||0;
+      if(n||q) rows.push([n,u,q,p,parseFloat((q*p).toFixed(4))]);
+    });
+    return rows;
+  }
+
+  var colW1=[{wch:26},{wch:20},{wch:8},{wch:8},{wch:10},{wch:10}];
+  var colW2=[{wch:26},{wch:8},{wch:8},{wch:10},{wch:10}];
+  var ws1=XLSX.utils.aoa_to_sheet(mainSheet('s1MainBody'));   ws1['!cols']=colW1; XLSX.utils.book_append_sheet(wb,ws1,'上學期主表');
+  var ws2=XLSX.utils.aoa_to_sheet(mainSheet('s2MainBody'));   ws2['!cols']=colW1; XLSX.utils.book_append_sheet(wb,ws2,'下學期主表');
+  var wg1=XLSX.utils.aoa_to_sheet(simpleSheet('s1GoodsBody'));wg1['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wg1,'上學期物品費');
+  var wg2=XLSX.utils.aoa_to_sheet(simpleSheet('s2GoodsBody'));wg2['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wg2,'下學期物品費');
+  var wd1=XLSX.utils.aoa_to_sheet(simpleSheet('s1DataBody')); wd1['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wd1,'上學期資料蒐集費');
+  var wd2=XLSX.utils.aoa_to_sheet(simpleSheet('s2DataBody')); wd2['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wd2,'下學期資料蒐集費');
+
+  XLSX.writeFile(wb, name + '_' + subPlan + '_115優高經費概算.xlsx');
+  showToast('📥 Excel 已下載');
+}
+
+// ── Google Drive 上傳 ──
+function ensureDriveToken() {
+  if(googleAccessToken) return Promise.resolve(googleAccessToken);
+  var provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/drive.file');
+  return auth.currentUser.reauthenticateWithPopup(provider)
+    .then(function(result){ googleAccessToken = result.credential.accessToken; return googleAccessToken; });
+}
+
+function uploadBlobToDrive(blob, filename) {
+  return ensureDriveToken().then(function(token){
+    var meta = { name: filename, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+    var form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(meta)], {type:'application/json'}));
+    form.append('file', blob);
+    return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method:'POST', headers:{'Authorization':'Bearer '+token}, body:form
+    }).then(function(r){ return r.json(); }).then(function(data){
+      if(data.error) throw new Error(data.error.message);
+      return 'https://drive.google.com/file/d/' + data.id + '/view';
+    });
+  });
+}
+
+function uploadPlanToDrive() {
+  var payload = buildPayload();
+  if(!payload.name){ showToast('⚠ 請先填寫姓名再上傳','warning'); return; }
+  showToast('⏳ 正在上傳到 Google Drive...','info');
+  var wb=XLSX.utils.book_new();
+  var rows=[['欄位','內容']];
+  Object.keys(payload).forEach(function(k){
+    if(['userId','userEmail','displayName','submittedAt','images'].includes(k)) return;
+    var val=Array.isArray(payload[k])?payload[k].join('、'):(payload[k]||'');
+    if(val) rows.push([k,val]);
+  });
+  var ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:22},{wch:65}];
+  XLSX.utils.book_append_sheet(wb,ws,'計畫書');
+  var wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  var blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  var fn=(payload.name||'計畫書')+'_'+(payload.sub_plan_type||'')+'_115優高計畫.xlsx';
+  uploadBlobToDrive(blob,fn)
+    .then(function(url){
+      showToast('✅ 已上傳！<a href="'+url+'" target="_blank" class="alert-link ms-2">開啟檔案</a>','success');
+    })
+    .catch(function(e){ showToast('❌ 上傳失敗：'+e.message,'danger'); });
+}
+
+function uploadBudgetToDrive() {
+  var name=(document.getElementById('b_name')&&document.getElementById('b_name').value.trim())||'';
+  if(!name){ showToast('⚠ 請先填寫姓名再上傳','warning'); return; }
+  showToast('⏳ 正在上傳到 Google Drive...','info');
+  var wb=XLSX.utils.book_new();
+  function mainSheet(bodyId){
+    var r=[['費用類別','項目說明','單位','數量','單價(仟)','金額(仟)']];
+    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
+      var cat=(tr.querySelector('.category-sel')&&tr.querySelector('.category-sel').value)||'';
+      var desc=(tr.querySelector('.desc-input')&&tr.querySelector('.desc-input').value)||'';
+      var unit=(tr.querySelector('.unit-input')&&tr.querySelector('.unit-input').value)||'';
+      var qty=parseFloat((tr.querySelector('.qty-input')&&tr.querySelector('.qty-input').value))||0;
+      var price=parseFloat((tr.querySelector('.price-input')&&tr.querySelector('.price-input').value))||0;
+      if(cat||desc||qty) r.push([cat,desc,unit,qty,price,parseFloat((qty*price).toFixed(4))]);
+    });
+    return r;
+  }
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mainSheet('s1MainBody')),'上學期主表');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mainSheet('s2MainBody')),'下學期主表');
+  var wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  var blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  var fn=name+'_'+(document.getElementById('b_sub_plan_type')?document.getElementById('b_sub_plan_type').value:'')+'_115優高經費概算.xlsx';
+  uploadBlobToDrive(blob,fn)
+    .then(function(url){
+      showToast('✅ 已上傳！<a href="'+url+'" target="_blank" class="alert-link ms-2">開啟檔案</a>','success');
+    })
+    .catch(function(e){ showToast('❌ 上傳失敗：'+e.message,'danger'); });
+}
+</script>
+
+<script>
+// ── 計畫書 GAS URL（保留備用，主要已改用 Firestore） ──
 var GAS_URL = "https://script.google.com/macros/s/AKfycbxjvTPlvp0TGiIKXhZRcGfItKUlMZErtG7W93M-R5T9OIpUIRSqrF0F9AEuCxprYXE3Tw/exec";
 
 var SECTION_MAP = {
@@ -1538,6 +2104,7 @@ function removeImage(i) {
 }
 
 async function submitForm() {
+  if (!currentUser) { alert('請先登入'); return; }
   var payload = buildPayload();
   if (!validate(payload)) return;
 
@@ -1546,26 +2113,27 @@ async function submitForm() {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中...';
 
   try {
-    var res = await fetch(GAS_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'text/plain' }  // GAS 需要 text/plain 避免 CORS preflight
-    });
-    var data = await res.json();
-    if (data.ok) {
-      document.getElementById('successBanner').style.display = '';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      // 清空動態欄位但保留姓名/科別，方便繼續填下一個子計畫
-      document.getElementById('f_sub_plan').value = '';
-      document.querySelectorAll('.plan-section').forEach(function(el) { el.classList.remove('active'); });
-      document.getElementById('submitArea').classList.add('d-none');
-      // 預填經費概算基本資訊
-      prefillBudgetBasicInfo(payload);
-    } else {
-      alert('送出失敗：' + (data.message || '請稍後再試'));
-    }
+    payload.userId      = currentUser.uid;
+    payload.userEmail   = currentUser.email;
+    payload.displayName = currentUser.displayName || '';
+    payload.submittedAt = firebase.firestore.FieldValue.serverTimestamp();
+    // 圖片存為陣列（base64）
+    payload.images = selectedImages.map(function(img){ return { name: img.name, data: img.data }; });
+
+    await db.collection(COL_PLANS).add(payload);
+
+    document.getElementById('successBanner').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('f_sub_plan').value = '';
+    document.querySelectorAll('.plan-section').forEach(function(el) { el.classList.remove('active'); });
+    document.getElementById('submitArea').classList.add('d-none');
+    prefillBudgetBasicInfo(payload);
+    selectedImages = [];
+    renderImagePreviews();
+    showToast('✅ 計畫書已成功送出！');
+    saveDraft();
   } catch(err) {
-    alert('網路錯誤，請確認網路連線後再試。\n' + err);
+    alert('送出失敗：' + err.message);
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="bi bi-send-fill me-2"></i>確認送出';
@@ -1883,38 +2451,41 @@ function collectSimpleRows(bodyId, semester) {
 }
 
 async function submitBudget() {
-  var name = document.getElementById('b_name').value.trim();
+  if (!currentUser) { alert('請先登入'); return; }
+  var name    = document.getElementById('b_name').value.trim();
   var subject = document.getElementById('b_subject').value;
   var subPlan = document.getElementById('b_sub_plan_type').value;
-  var planName = document.getElementById('b_plan_name').value.trim();
+  var planName= document.getElementById('b_plan_name').value.trim();
   if (!name || !subject || !subPlan || !planName) {
     alert('請填寫基本資訊（姓名、科別、子計畫類型、計畫名稱）');
     return;
   }
-  var mainItems = collectMainRows('s1MainBody', '上學期').concat(collectMainRows('s2MainBody', '下學期'));
-  var goodsItems = collectSimpleRows('s1GoodsBody', '上學期').concat(collectSimpleRows('s2GoodsBody', '下學期'));
-  var dataItems = collectSimpleRows('s1DataBody', '上學期').concat(collectSimpleRows('s2DataBody', '下學期'));
+  var mainItems  = collectMainRows('s1MainBody','上學期').concat(collectMainRows('s2MainBody','下學期'));
+  var goodsItems = collectSimpleRows('s1GoodsBody','上學期').concat(collectSimpleRows('s2GoodsBody','下學期'));
+  var dataItems  = collectSimpleRows('s1DataBody','上學期').concat(collectSimpleRows('s2DataBody','下學期'));
   if (mainItems.length + goodsItems.length + dataItems.length === 0) {
     alert('請至少填寫一筆費用項目');
     return;
   }
-  var payload = { name: name, subject: subject, sub_plan_type: subPlan, plan_name: planName, main_items: mainItems, goods_items: goodsItems, data_items: dataItems };
   var btn = document.getElementById('b_submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中…';
   try {
-    var resp = await fetch(BUDGET_GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
-    var json = await resp.json();
-    if (json.ok) {
-      var grand = document.getElementById('grandTotal').textContent;
-      document.getElementById('b_successDetail').textContent = ' 共計 ' + grand + '，感謝 ' + name + ' 老師完成填報。';
-      document.getElementById('b_successBanner').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      alert('送出失敗：' + json.message);
-    }
+    await db.collection(COL_BUDGETS).add({
+      userId: currentUser.uid, userEmail: currentUser.email,
+      displayName: currentUser.displayName || '',
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      name: name, subject: subject, sub_plan_type: subPlan, plan_name: planName,
+      main_items: mainItems, goods_items: goodsItems, data_items: dataItems
+    });
+    var grand = document.getElementById('grandTotal').textContent;
+    document.getElementById('b_successDetail').textContent = ' 共計 ' + grand + '，感謝 ' + name + ' 老師完成填報。';
+    document.getElementById('b_successBanner').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('✅ 經費概算已成功送出！');
+    saveDraft();
   } catch (err) {
-    alert('連線錯誤，請稍後再試。\n' + err.message);
+    alert('送出失敗：' + err.message);
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="bi bi-send me-2"></i>送出經費概算';
@@ -1930,6 +2501,7 @@ document.addEventListener('DOMContentLoaded', function() {
   addGoodsRow('s2GoodsBody', 's2Goods');
   addDataRow('s1DataBody', 's1Data');
   addDataRow('s2DataBody', 's2Data');
+  // 自動存檔監聽在 auth.onAuthStateChanged 後的 setupAutoSave() 中設定
 });
 </script>
 </body>
