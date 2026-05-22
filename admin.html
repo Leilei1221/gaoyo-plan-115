@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>管理後台 — 115優高計畫書</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f0f4f8; font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif; }
+    .header-bar { background: linear-gradient(135deg,#155724 0%,#0a3d1f 100%); color: white; padding: 1.2rem 0; margin-bottom: 1.5rem; }
+    .card { border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    .stat-card { border-left: 4px solid; border-radius: 8px; padding: .8rem 1rem; background: white; }
+    .badge-plan { background: #0d6efd; }
+    .matrix-check { color: #198754; font-weight: 700; }
+    .matrix-empty { color: #adb5bd; }
+    .section-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #6c757d; padding-bottom: .3rem; border-bottom: 2px solid #e9ecef; margin-bottom: .75rem; }
+    #loadingScreen { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<div class="header-bar">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2"></i>管理後台 — 115學年度優高計畫書</h5>
+      <div class="opacity-75 small">國立花蓮高中 · 僅限管理員使用</div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-white small"><i class="bi bi-person-circle me-1"></i><span id="adminUserName"></span></span>
+      <a href="index.html" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>回主頁</a>
+      <button onclick="adminSignOut()" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right me-1"></i>登出</button>
+    </div>
+  </div>
+</div>
+
+<div id="loadingScreen">
+  <div class="text-center">
+    <div class="spinner-border text-primary mb-3"></div>
+    <div id="loadingMsg" class="text-muted">驗證身分中...</div>
+  </div>
+</div>
+
+<div id="adminApp" style="display:none">
+<div class="container pb-5">
+
+  <!-- 操作列 -->
+  <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+    <button class="btn btn-success" onclick="exportAllToExcel()">
+      <i class="bi bi-file-earmark-excel me-1"></i>匯出全校 Excel
+    </button>
+    <button class="btn btn-outline-secondary btn-sm" onclick="loadAllData()">
+      <i class="bi bi-arrow-clockwise me-1"></i>重新載入
+    </button>
+    <span id="loadStatus" class="text-muted small ms-2"></span>
+  </div>
+
+  <!-- 統計卡片 -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="border-color:#0d6efd">
+        <div class="text-muted small">已登入老師</div>
+        <div class="fw-bold fs-4 text-primary" id="statUsers">—</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="border-color:#198754">
+        <div class="text-muted small">計畫書送出數</div>
+        <div class="fw-bold fs-4 text-success" id="statPlans">—</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="border-color:#fd7e14">
+        <div class="text-muted small">經費概算送出數</div>
+        <div class="fw-bold fs-4 text-warning" id="statBudgets">—</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card" style="border-color:#6f42c1">
+        <div class="text-muted small">子計畫分布</div>
+        <div class="fw-bold small text-purple" id="statPlanBreakdown" style="line-height:1.6;color:#6f42c1">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 篩選器 -->
+  <div class="card p-3 mb-3">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">篩選子計畫</label>
+        <select id="filterSubPlan" class="form-select form-select-sm" onchange="applyFilter()">
+          <option value="">全部</option>
+          <option value="a1">A-1 課綱課程與社群</option>
+          <option value="a2">A-2 課綱課務推動</option>
+          <option value="b1-1">B1-1 數位學習核心小組</option>
+          <option value="b1-2">B1-2 數位學習課程與社群</option>
+          <option value="b1-3">B1-3 數位遠距共授</option>
+          <option value="b2">B2 社會情緒學習（SEL）</option>
+          <option value="b3">B3 交通安全教育</option>
+          <option value="c">C 學校特色發展</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">搜尋姓名</label>
+        <input type="text" id="filterName" class="form-control form-control-sm" placeholder="輸入老師姓名..." oninput="applyFilter()">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold">資料類型</label>
+        <select id="filterType" class="form-select form-select-sm" onchange="applyFilter()">
+          <option value="plans">計畫書</option>
+          <option value="budgets">經費概算</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilter()">清除篩選</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 繳交狀況矩陣 -->
+  <div class="card p-4 mb-4">
+    <div class="section-title"><i class="bi bi-grid-3x3-gap me-1"></i>全校繳交狀況（計畫書）</div>
+    <div id="statusMatrix"><div class="text-muted small">載入中...</div></div>
+  </div>
+
+  <!-- 計畫書清單 -->
+  <div id="plansSection" class="card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="section-title mb-0"><i class="bi bi-file-earmark-text me-1"></i>計畫書送出記錄</div>
+      <span id="plansCount" class="badge bg-primary">0 筆</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered table-sm" style="font-size:.85rem">
+        <thead class="table-light">
+          <tr>
+            <th style="width:110px">送出時間</th>
+            <th>姓名</th>
+            <th>科別</th>
+            <th style="width:90px">子計畫</th>
+            <th>計畫名稱</th>
+            <th style="width:90px">類型</th>
+            <th style="width:90px">自評</th>
+            <th style="width:50px">圖片</th>
+          </tr>
+        </thead>
+        <tbody id="plansTableBody">
+          <tr><td colspan="8" class="text-center text-muted py-3">載入中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 經費概算清單 -->
+  <div id="budgetsSection" class="card p-4 mb-4" style="display:none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="section-title mb-0"><i class="bi bi-calculator me-1"></i>經費概算送出記錄</div>
+      <span id="budgetsCount" class="badge bg-success">0 筆</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered table-sm" style="font-size:.85rem">
+        <thead class="table-light">
+          <tr>
+            <th style="width:110px">送出時間</th>
+            <th>姓名</th>
+            <th>科別</th>
+            <th style="width:90px">子計畫</th>
+            <th>計畫名稱</th>
+            <th style="width:90px" class="text-end">總計（仟）</th>
+          </tr>
+        </thead>
+        <tbody id="budgetsTableBody">
+          <tr><td colspan="6" class="text-center text-muted py-3">載入中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 已登入老師清單 -->
+  <div class="card p-4">
+    <div class="section-title"><i class="bi bi-people me-1"></i>已登入老師（<span id="usersCount">0</span> 人）</div>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered" style="font-size:.83rem">
+        <thead class="table-light"><tr><th>姓名</th><th>Email</th><th>最後登入</th></tr></thead>
+        <tbody id="usersTableBody"><tr><td colspan="3" class="text-center text-muted">載入中...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+</div><!-- /adminApp -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db   = firebase.firestore();
+var ADMIN_EMAIL = 'phyllis@hlhs.hlc.edu.tw';
+
+var allPlans   = [];
+var allBudgets = [];
+var allUsers   = [];
+
+auth.onAuthStateChanged(function(user) {
+  if (!user || user.email !== ADMIN_EMAIL) {
+    document.getElementById('loadingMsg').innerHTML =
+      '<i class="bi bi-exclamation-triangle text-danger me-2"></i>僅限管理員使用，正在跳轉...<br>' +
+      '<a href="index.html" class="btn btn-primary btn-sm mt-2">回登入頁面</a>';
+    setTimeout(function(){ window.location.href='index.html'; }, 3000);
+    return;
+  }
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('adminApp').style.display = '';
+  document.getElementById('adminUserName').textContent = user.displayName || user.email;
+  loadAllData();
+});
+
+function loadAllData() {
+  showStatus('載入資料中...');
+  Promise.all([
+    db.collection('gaoyo_plans').orderBy('submittedAt','desc').get(),
+    db.collection('gaoyo_budgets').orderBy('submittedAt','desc').get(),
+    db.collection('gaoyo_users').orderBy('lastLogin','desc').get()
+  ]).then(function(results) {
+    allPlans   = results[0].docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    allBudgets = results[1].docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    allUsers   = results[2].docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    renderStats();
+    applyFilter();
+    renderStatusMatrix();
+    renderUsersTable();
+    showStatus('');
+  }).catch(function(err){ showStatus('❌ 載入失敗：' + err.message); });
+}
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  var d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('zh-TW') + ' ' + d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+}
+
+function renderStats() {
+  document.getElementById('statUsers').textContent   = allUsers.length;
+  document.getElementById('statPlans').textContent   = allPlans.length;
+  document.getElementById('statBudgets').textContent = allBudgets.length;
+  var byPlan = {};
+  allPlans.forEach(function(p){ var k=(p.sub_plan_type||'?').toUpperCase(); byPlan[k]=(byPlan[k]||0)+1; });
+  document.getElementById('statPlanBreakdown').textContent =
+    Object.keys(byPlan).map(function(k){ return k+':'+byPlan[k]; }).join(' / ') || '—';
+}
+
+function renderPlansTable(plans) {
+  var tbody = document.getElementById('plansTableBody');
+  document.getElementById('plansCount').textContent = plans.length + ' 筆';
+  if (!plans.length) { tbody.innerHTML='<tr><td colspan="8" class="text-center text-muted py-3">無符合資料</td></tr>'; return; }
+  tbody.innerHTML = plans.map(function(p){
+    var imgCount = (p.images && p.images.length) ? p.images.length : 0;
+    return '<tr>' +
+      '<td class="text-nowrap small">' + fmtDate(p.submittedAt) + '</td>' +
+      '<td class="fw-semibold">' + (p.name||'—') + '</td>' +
+      '<td>' + (p.subject||'—') + '</td>' +
+      '<td><span class="badge bg-primary">' + (p.sub_plan_type||'').toUpperCase() + '</span></td>' +
+      '<td>' + (p.plan_name||'—') + '</td>' +
+      '<td><small>' + (p.plan_name_type==='community'?'社群':'課程') + '</small></td>' +
+      '<td><small>' + (p.achievement||'—') + '</small></td>' +
+      '<td class="text-center">' + (imgCount?'<span class="badge bg-secondary">'+imgCount+'</span>':'—') + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function renderBudgetsTable(budgets) {
+  var tbody = document.getElementById('budgetsTableBody');
+  document.getElementById('budgetsCount').textContent = budgets.length + ' 筆';
+  if (!budgets.length) { tbody.innerHTML='<tr><td colspan="6" class="text-center text-muted py-3">無符合資料</td></tr>'; return; }
+  tbody.innerHTML = budgets.map(function(b){
+    var items = (b.main_items||[]).concat(b.goods_items||[]).concat(b.data_items||[]);
+    var grand = items.reduce(function(s,i){ return s+(i.amount||0); }, 0);
+    return '<tr>' +
+      '<td class="text-nowrap small">' + fmtDate(b.submittedAt) + '</td>' +
+      '<td class="fw-semibold">' + (b.name||'—') + '</td>' +
+      '<td>' + (b.subject||'—') + '</td>' +
+      '<td><span class="badge bg-success">' + (b.sub_plan_type||'').toUpperCase() + '</span></td>' +
+      '<td>' + (b.plan_name||'—') + '</td>' +
+      '<td class="text-end fw-bold">' + grand.toFixed(2) + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function renderStatusMatrix() {
+  var subPlans = ['a1','a2','b1-1','b1-2','b1-3','b2','b3','c'];
+  var container = document.getElementById('statusMatrix');
+  if (!allUsers.length) { container.innerHTML='<p class="text-muted small">尚無老師登入</p>'; return; }
+  var submittedSet = {};
+  allPlans.forEach(function(p){ submittedSet[(p.userEmail||'')+'|'+(p.sub_plan_type||'')] = true; });
+
+  var html = '<div class="table-responsive"><table class="table table-bordered table-sm mb-0" style="font-size:.8rem"><thead><tr><th style="min-width:90px">老師</th>';
+  subPlans.forEach(function(s){ html += '<th class="text-center">' + s.toUpperCase() + '</th>'; });
+  html += '</tr></thead><tbody>';
+  allUsers.forEach(function(u){
+    html += '<tr><td><div class="fw-semibold">' + (u.displayName||'—') + '</div><div class="text-muted" style="font-size:.72rem">' + (u.email||'') + '</div></td>';
+    subPlans.forEach(function(s){
+      var done = submittedSet[(u.email||'')+'|'+s];
+      html += '<td class="text-center ' + (done?'matrix-check':'matrix-empty') + '">' + (done?'✓':'—') + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function renderUsersTable() {
+  var tbody = document.getElementById('usersTableBody');
+  document.getElementById('usersCount').textContent = allUsers.length;
+  if (!allUsers.length) { tbody.innerHTML='<tr><td colspan="3" class="text-center text-muted">尚無登入記錄</td></tr>'; return; }
+  tbody.innerHTML = allUsers.map(function(u){
+    return '<tr><td>' + (u.displayName||'—') + '</td><td>' + (u.email||'—') + '</td><td class="small">' + fmtDate(u.lastLogin) + '</td></tr>';
+  }).join('');
+}
+
+function applyFilter() {
+  var subPlan = document.getElementById('filterSubPlan').value;
+  var name    = document.getElementById('filterName').value.trim();
+  var type    = document.getElementById('filterType').value;
+
+  document.getElementById('plansSection').style.display   = (type==='plans')   ? '' : 'none';
+  document.getElementById('budgetsSection').style.display = (type==='budgets')  ? '' : 'none';
+
+  var plans = allPlans.filter(function(p){
+    if(subPlan && p.sub_plan_type !== subPlan) return false;
+    if(name    && !(p.name||'').includes(name)) return false;
+    return true;
+  });
+  var budgets = allBudgets.filter(function(b){
+    if(name && !(b.name||'').includes(name)) return false;
+    return true;
+  });
+
+  if(type==='plans')   renderPlansTable(plans);
+  if(type==='budgets') renderBudgetsTable(budgets);
+}
+
+function clearFilter() {
+  document.getElementById('filterSubPlan').value = '';
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterType').value = 'plans';
+  applyFilter();
+}
+
+function exportAllToExcel() {
+  var wb = XLSX.utils.book_new();
+
+  // 計畫書清單
+  var planRows = [['送出時間','姓名','科別','子計畫','計畫名稱','類型','預期目標','自評','圖片數']];
+  allPlans.forEach(function(p){
+    planRows.push([
+      fmtDate(p.submittedAt), p.name||'', p.subject||'', (p.sub_plan_type||'').toUpperCase(),
+      p.plan_name||'', p.plan_name_type==='community'?'社群':'課程',
+      p.goal_description||p.goal||'', p.achievement||'',
+      (p.images&&p.images.length)||0
+    ]);
+  });
+  var wsPlan = XLSX.utils.aoa_to_sheet(planRows);
+  wsPlan['!cols'] = [{wch:16},{wch:10},{wch:12},{wch:10},{wch:22},{wch:6},{wch:40},{wch:14},{wch:6}];
+  XLSX.utils.book_append_sheet(wb, wsPlan, '計畫書清單');
+
+  // 經費概算清單
+  var budgetRows = [['送出時間','姓名','科別','子計畫','計畫名稱','上學期主表(仟)','上學期物品費(仟)','上學期資蒐費(仟)','下學期主表(仟)','下學期物品費(仟)','下學期資蒐費(仟)','總計(仟)']];
+  allBudgets.forEach(function(b){
+    function sumBySem(items,sem){ return (items||[]).filter(function(i){return i.semester===sem;}).reduce(function(s,i){return s+(i.amount||0);},0); }
+    var s1m=sumBySem(b.main_items,'上學期'), s1g=sumBySem(b.goods_items,'上學期'), s1d=sumBySem(b.data_items,'上學期');
+    var s2m=sumBySem(b.main_items,'下學期'), s2g=sumBySem(b.goods_items,'下學期'), s2d=sumBySem(b.data_items,'下學期');
+    budgetRows.push([
+      fmtDate(b.submittedAt), b.name||'', b.subject||'', (b.sub_plan_type||'').toUpperCase(), b.plan_name||'',
+      parseFloat(s1m.toFixed(3)), parseFloat(s1g.toFixed(3)), parseFloat(s1d.toFixed(3)),
+      parseFloat(s2m.toFixed(3)), parseFloat(s2g.toFixed(3)), parseFloat(s2d.toFixed(3)),
+      parseFloat((s1m+s1g+s1d+s2m+s2g+s2d).toFixed(3))
+    ]);
+  });
+  var wsBudget = XLSX.utils.aoa_to_sheet(budgetRows);
+  wsBudget['!cols'] = [{wch:16},{wch:10},{wch:12},{wch:10},{wch:22},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, wsBudget, '經費概算清單');
+
+  // 老師清單
+  var userRows = [['姓名','Email','最後登入']];
+  allUsers.forEach(function(u){ userRows.push([u.displayName||'', u.email||'', fmtDate(u.lastLogin)]); });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(userRows), '老師清單');
+
+  // 繳交狀況矩陣
+  var subPlans = ['a1','a2','b1-1','b1-2','b1-3','b2','b3','c'];
+  var matrixRows = [['老師姓名','Email'].concat(subPlans.map(function(s){return s.toUpperCase();}))];
+  var submittedSet = {};
+  allPlans.forEach(function(p){ submittedSet[(p.userEmail||'')+'|'+(p.sub_plan_type||'')] = true; });
+  allUsers.forEach(function(u){
+    matrixRows.push([u.displayName||'', u.email||''].concat(subPlans.map(function(s){
+      return submittedSet[(u.email||'')+'|'+s] ? '✓' : '';
+    })));
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(matrixRows), '繳交狀況矩陣');
+
+  var today = new Date().toLocaleDateString('zh-TW').replace(/\//g,'-');
+  XLSX.writeFile(wb, '115優高計畫_全校繳交狀況_' + today + '.xlsx');
+}
+
+function showStatus(msg) {
+  document.getElementById('loadStatus').textContent = msg;
+}
+
+function adminSignOut() {
+  auth.signOut().then(function(){ window.location.href='index.html'; });
+}
+</script>
+</body>
+</html>
