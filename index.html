@@ -822,12 +822,15 @@
           <i class="bi bi-cloud-check me-1"></i>資料將儲存至 Firebase Firestore
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadPlanExcel()">
+          <a href="https://drive.google.com/uc?export=download&id=1toBqzlOVg_DQIgkLOR2Lk7JrGc3JByh-"
+             class="btn btn-outline-success btn-sm">
             <i class="bi bi-file-earmark-excel me-1"></i>下載 Excel
-          </button>
-          <button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadPlanToDrive()">
+          </a>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadFileToDrive('plan')">
             <i class="bi bi-google me-1"></i>存到 Google Drive
           </button>
+          <input type="file" id="planFileInput" accept=".xlsx,.xls,.pdf" style="display:none"
+                 onchange="handleFileUpload(this,'plan')">
           <button type="button" class="btn btn-primary px-4" id="submitBtn" onclick="submitForm()">
             <i class="bi bi-send-fill me-2"></i>確認送出
           </button>
@@ -1153,13 +1156,21 @@
     <button class="btn btn-success btn-lg" onclick="submitBudget()" id="b_submitBtn">
       <i class="bi bi-send me-2"></i>送出經費概算
     </button>
-    <div class="d-flex gap-2 justify-content-center flex-wrap">
-      <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadBudgetExcel()">
-        <i class="bi bi-file-earmark-excel me-1"></i>下載 Excel
-      </button>
-      <button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadBudgetToDrive()">
-        <i class="bi bi-google me-1"></i>存到 Google Drive
-      </button>
+    <div class="d-flex flex-column align-items-center gap-2">
+      <div class="d-flex gap-2 flex-wrap justify-content-center">
+        <a href="https://drive.google.com/uc?export=download&id=1toBqzlOVg_DQIgkLOR2Lk7JrGc3JByh-"
+           class="btn btn-outline-success btn-sm">
+          <i class="bi bi-file-earmark-excel me-1"></i>下載經費概算表範本
+        </a>
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="uploadFileToDrive('budget')">
+          <i class="bi bi-google me-1"></i>存到 Google Drive
+        </button>
+        <input type="file" id="budgetFileInput" accept=".xlsx,.xls,.pdf" style="display:none"
+               onchange="handleFileUpload(this,'budget')">
+      </div>
+      <p class="text-muted small mb-0 text-center">
+        下載後請依子計畫填寫，完成後使用上方「存到 Google Drive」繳回
+      </p>
     </div>
   </div>
 
@@ -1176,8 +1187,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<!-- SheetJS -->
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -1202,6 +1211,8 @@ var COL_DRAFTS      = 'gaoyo_drafts';
 var COL_PLANS       = 'gaoyo_plans';
 var COL_BUDGETS     = 'gaoyo_budgets';
 var COL_USERS       = 'gaoyo_users';
+var COL_SUBMISSIONS = 'gaoyo_submissions';
+var DRIVE_FOLDER_ID = '14o9zyTAkXh4dpxCQz-Nr3uccEao_jZ0c';
 
 var currentUser        = null;
 var googleAccessToken  = null;
@@ -1517,149 +1528,62 @@ function showToast(msg, type) {
   }
 }
 
-// ── Excel 下載（計畫書） ──
-function downloadPlanExcel() {
-  var payload = buildPayload();
-  var name = payload.name || '計畫書';
-  var wb = XLSX.utils.book_new();
-  var rows = [['欄位','內容']];
-  var labels = {
-    name:'姓名', subject:'科別', plan_name:'計畫名稱', sub_plan_type:'子計畫',
-    plan_name_type:'課程或社群', goal_description:'預期目標', achievement:'預期目標自評',
-    course_code:'分支序號', course_type:'課程類型', domain_s1:'課程領域(上)', domain_s2:'課程領域(下)',
-    community_members:'社群成員', community_activity_desc:'社群活動描述',
-    plan_goal:'計畫目標', sel_core_team:'SEL核心小組', strategy:'實施策略',
-    goal:'計畫目標', members:'核心小組名單', content:'課程內容'
-  };
-  Object.keys(payload).forEach(function(k){
-    if(['userId','userEmail','displayName','submittedAt','images'].includes(k)) return;
-    var val = Array.isArray(payload[k]) ? payload[k].join('、') : (payload[k]||'');
-    if(val) rows.push([labels[k]||k, val]);
-  });
-  var ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:22},{wch:65}];
-  XLSX.utils.book_append_sheet(wb, ws, '計畫書');
-  XLSX.writeFile(wb, name + '_' + (payload.sub_plan_type||'') + '_115優高計畫.xlsx');
-  showToast('📥 Excel 已下載');
-}
-
-// ── Excel 下載（經費概算） ──
-function downloadBudgetExcel() {
-  var name = (document.getElementById('b_name')&&document.getElementById('b_name').value.trim()) || '經費概算';
-  var subPlan = (document.getElementById('b_sub_plan_type')&&document.getElementById('b_sub_plan_type').value) || '';
-  var wb = XLSX.utils.book_new();
-
-  function mainSheet(bodyId) {
-    var rows=[['費用類別','項目說明','單位','數量','單價(仟)','金額(仟)']];
-    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
-      var cat=(tr.querySelector('.category-sel')&&tr.querySelector('.category-sel').value)||'';
-      var desc=(tr.querySelector('.desc-input')&&tr.querySelector('.desc-input').value)||'';
-      var unit=(tr.querySelector('.unit-input')&&tr.querySelector('.unit-input').value)||'';
-      var qty=parseFloat((tr.querySelector('.qty-input')&&tr.querySelector('.qty-input').value))||0;
-      var price=parseFloat((tr.querySelector('.price-input')&&tr.querySelector('.price-input').value))||0;
-      if(cat||desc||qty) rows.push([cat,desc,unit,qty,price,parseFloat((qty*price).toFixed(4))]);
-    });
-    return rows;
-  }
-  function simpleSheet(bodyId) {
-    var rows=[['品名規格','單位','數量','單價(仟)','金額(仟)']];
-    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
-      var n=(tr.querySelector('.desc-input')&&tr.querySelector('.desc-input').value)||'';
-      var u=(tr.querySelector('.unit-input')&&tr.querySelector('.unit-input').value)||'';
-      var q=parseFloat((tr.querySelector('.qty-input')&&tr.querySelector('.qty-input').value))||0;
-      var p=parseFloat((tr.querySelector('.price-input')&&tr.querySelector('.price-input').value))||0;
-      if(n||q) rows.push([n,u,q,p,parseFloat((q*p).toFixed(4))]);
-    });
-    return rows;
-  }
-
-  var colW1=[{wch:26},{wch:20},{wch:8},{wch:8},{wch:10},{wch:10}];
-  var colW2=[{wch:26},{wch:8},{wch:8},{wch:10},{wch:10}];
-  var ws1=XLSX.utils.aoa_to_sheet(mainSheet('s1MainBody'));   ws1['!cols']=colW1; XLSX.utils.book_append_sheet(wb,ws1,'上學期主表');
-  var ws2=XLSX.utils.aoa_to_sheet(mainSheet('s2MainBody'));   ws2['!cols']=colW1; XLSX.utils.book_append_sheet(wb,ws2,'下學期主表');
-  var wg1=XLSX.utils.aoa_to_sheet(simpleSheet('s1GoodsBody'));wg1['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wg1,'上學期物品費');
-  var wg2=XLSX.utils.aoa_to_sheet(simpleSheet('s2GoodsBody'));wg2['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wg2,'下學期物品費');
-  var wd1=XLSX.utils.aoa_to_sheet(simpleSheet('s1DataBody')); wd1['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wd1,'上學期資料蒐集費');
-  var wd2=XLSX.utils.aoa_to_sheet(simpleSheet('s2DataBody')); wd2['!cols']=colW2; XLSX.utils.book_append_sheet(wb,wd2,'下學期資料蒐集費');
-
-  XLSX.writeFile(wb, name + '_' + subPlan + '_115優高經費概算.xlsx');
-  showToast('📥 Excel 已下載');
-}
-
 // ── Google Drive 上傳 ──
 function ensureDriveToken() {
-  if(googleAccessToken) return Promise.resolve(googleAccessToken);
+  if (googleAccessToken) return Promise.resolve(googleAccessToken);
   var provider = new firebase.auth.GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.file');
   return auth.currentUser.reauthenticateWithPopup(provider)
-    .then(function(result){ googleAccessToken = result.credential.accessToken; return googleAccessToken; });
+    .then(function(result) { googleAccessToken = result.credential.accessToken; return googleAccessToken; });
 }
 
-function uploadBlobToDrive(blob, filename) {
-  return ensureDriveToken().then(function(token){
-    var meta = { name: filename, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
+function uploadFileToDrive(type) {
+  var inputId = type === 'budget' ? 'budgetFileInput' : 'planFileInput';
+  document.getElementById(inputId).click();
+}
+
+function handleFileUpload(input, type) {
+  var file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  var teacherName = currentUser ? (currentUser.displayName || currentUser.email) : '老師';
+  var subPlan = type === 'budget'
+    ? ((document.getElementById('b_sub_plan_type') && document.getElementById('b_sub_plan_type').value) || '')
+    : ((document.getElementById('sub_plan_type') && document.getElementById('sub_plan_type').value) || '');
+  var prefix = teacherName + (subPlan ? '_' + subPlan : '') + '_';
+  var filename = prefix + file.name;
+
+  showToast('⏳ 正在上傳至 Google Drive...', 'info');
+
+  ensureDriveToken().then(function(token) {
+    var meta = { name: filename, parents: [DRIVE_FOLDER_ID] };
     var form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(meta)], {type:'application/json'}));
-    form.append('file', blob);
+    form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
+    form.append('file', file);
     return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method:'POST', headers:{'Authorization':'Bearer '+token}, body:form
-    }).then(function(r){ return r.json(); }).then(function(data){
-      if(data.error) throw new Error(data.error.message);
-      return 'https://drive.google.com/file/d/' + data.id + '/view';
-    });
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: form
+    }).then(function(r) { return r.json(); });
+  }).then(function(data) {
+    if (data.error) throw new Error(data.error.message);
+    var url = 'https://drive.google.com/file/d/' + data.id + '/view';
+    showToast('✅ 已成功上傳至計畫主持人的雲端硬碟', 'success');
+    if (currentUser) {
+      db.collection(COL_SUBMISSIONS).add({
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        displayName: currentUser.displayName || '',
+        type: type,
+        subPlan: subPlan,
+        filename: filename,
+        driveUrl: url,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  }).catch(function(e) {
+    showToast('❌ 上傳失敗：' + e.message, 'danger');
   });
-}
-
-function uploadPlanToDrive() {
-  var payload = buildPayload();
-  if(!payload.name){ showToast('⚠ 請先填寫姓名再上傳','warning'); return; }
-  showToast('⏳ 正在上傳到 Google Drive...','info');
-  var wb=XLSX.utils.book_new();
-  var rows=[['欄位','內容']];
-  Object.keys(payload).forEach(function(k){
-    if(['userId','userEmail','displayName','submittedAt','images'].includes(k)) return;
-    var val=Array.isArray(payload[k])?payload[k].join('、'):(payload[k]||'');
-    if(val) rows.push([k,val]);
-  });
-  var ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:22},{wch:65}];
-  XLSX.utils.book_append_sheet(wb,ws,'計畫書');
-  var wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
-  var blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  var fn=(payload.name||'計畫書')+'_'+(payload.sub_plan_type||'')+'_115優高計畫.xlsx';
-  uploadBlobToDrive(blob,fn)
-    .then(function(url){
-      showToast('✅ 已上傳！<a href="'+url+'" target="_blank" class="alert-link ms-2">開啟檔案</a>','success');
-    })
-    .catch(function(e){ showToast('❌ 上傳失敗：'+e.message,'danger'); });
-}
-
-function uploadBudgetToDrive() {
-  var name=(document.getElementById('b_name')&&document.getElementById('b_name').value.trim())||'';
-  if(!name){ showToast('⚠ 請先填寫姓名再上傳','warning'); return; }
-  showToast('⏳ 正在上傳到 Google Drive...','info');
-  var wb=XLSX.utils.book_new();
-  function mainSheet(bodyId){
-    var r=[['費用類別','項目說明','單位','數量','單價(仟)','金額(仟)']];
-    document.querySelectorAll('#'+bodyId+' tr').forEach(function(tr){
-      var cat=(tr.querySelector('.category-sel')&&tr.querySelector('.category-sel').value)||'';
-      var desc=(tr.querySelector('.desc-input')&&tr.querySelector('.desc-input').value)||'';
-      var unit=(tr.querySelector('.unit-input')&&tr.querySelector('.unit-input').value)||'';
-      var qty=parseFloat((tr.querySelector('.qty-input')&&tr.querySelector('.qty-input').value))||0;
-      var price=parseFloat((tr.querySelector('.price-input')&&tr.querySelector('.price-input').value))||0;
-      if(cat||desc||qty) r.push([cat,desc,unit,qty,price,parseFloat((qty*price).toFixed(4))]);
-    });
-    return r;
-  }
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mainSheet('s1MainBody')),'上學期主表');
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(mainSheet('s2MainBody')),'下學期主表');
-  var wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
-  var blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  var fn=name+'_'+(document.getElementById('b_sub_plan_type')?document.getElementById('b_sub_plan_type').value:'')+'_115優高經費概算.xlsx';
-  uploadBlobToDrive(blob,fn)
-    .then(function(url){
-      showToast('✅ 已上傳！<a href="'+url+'" target="_blank" class="alert-link ms-2">開啟檔案</a>','success');
-    })
-    .catch(function(e){ showToast('❌ 上傳失敗：'+e.message,'danger'); });
 }
 </script>
 
