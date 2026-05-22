@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'phyllis@hlhs.hlc.edu.tw';
+    }
+    function isHlhsUser() {
+      return request.auth != null && request.auth.token.email.matches('.*@hlhs\\.hlc\\.edu\\.tw');
+    }
+    match /gaoyo_drafts/{userId} {
+      allow read, write: if isHlhsUser() && request.auth.uid == userId;
+      allow read: if isAdmin();
+    }
+    match /gaoyo_plans/{docId} {
+      allow create: if isHlhsUser();
+      allow read: if isAdmin() || (isHlhsUser() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+    match /gaoyo_budgets/{docId} {
+      allow create: if isHlhsUser();
+      allow read: if isAdmin() || (isHlhsUser() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+    match /gaoyo_users/{userId} {
+      allow read, write: if isHlhsUser() && request.auth.uid == userId;
+      allow read: if isAdmin();
+    }
+  }
+}
