@@ -204,6 +204,8 @@ const firebaseConfig = {
   appId: "1:1089473790781:web:a2f22b4729a9918446bb54"
 };
 firebase.initializeApp(firebaseConfig);
+// 指定非預設資料庫（named database）
+firebase.firestore().settings({ databaseId: 'ai-studio-9203363b-29a9-463f-9e9c-6abf638a049a' });
 var auth = firebase.auth();
 var db   = firebase.firestore();
 var ADMIN_EMAIL = 'phyllis@hlhs.hlc.edu.tw';

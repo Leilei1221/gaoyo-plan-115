@@ -295,18 +295,20 @@
 
         <div class="col-md-6" id="a1-course-block-s1">
           <label class="form-label fw-semibold">課程領域（上學期）</label>
-          <div class="d-flex gap-3">
+          <div class="d-flex gap-3 flex-wrap">
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s1" value="單科"><label class="form-check-label">單科</label></div>
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s1" value="跨科"><label class="form-check-label">跨科</label></div>
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s1" value="跨領域"><label class="form-check-label">跨領域</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s1" value=""><label class="form-check-label text-muted">不適用</label></div>
           </div>
         </div>
         <div class="col-md-6" id="a1-course-block-s2">
           <label class="form-label fw-semibold">課程領域（下學期）</label>
-          <div class="d-flex gap-3">
+          <div class="d-flex gap-3 flex-wrap">
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s2" value="單科"><label class="form-check-label">單科</label></div>
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s2" value="跨科"><label class="form-check-label">跨科</label></div>
             <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s2" value="跨領域"><label class="form-check-label">跨領域</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="a1_domain_s2" value=""><label class="form-check-label text-muted">不適用</label></div>
           </div>
         </div>
 
@@ -654,10 +656,11 @@
         </div>
         <div class="col-md-4">
           <label class="form-label fw-semibold">課程領域</label>
-          <div class="d-flex gap-3 mt-1">
+          <div class="d-flex gap-3 mt-1 flex-wrap">
             <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value="單科"><label class="form-check-label">單科</label></div>
             <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value="跨科"><label class="form-check-label">跨科</label></div>
             <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value="跨領域"><label class="form-check-label">跨領域</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="b13_domain" value=""><label class="form-check-label text-muted">不適用</label></div>
           </div>
         </div>
         <div class="col-12">
@@ -1193,6 +1196,8 @@ const firebaseConfig = {
   appId: "1:1089473790781:web:a2f22b4729a9918446bb54"
 };
 firebase.initializeApp(firebaseConfig);
+// 指定非預設資料庫（named database）
+firebase.firestore().settings({ databaseId: 'ai-studio-9203363b-29a9-463f-9e9c-6abf638a049a' });
 var auth = firebase.auth();
 var db   = firebase.firestore();
 
@@ -2031,6 +2036,10 @@ async function submitForm() {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中...';
 
   try {
+    // 診斷：印出 auth 狀態
+    console.log('[submitForm] auth.currentUser:',
+      auth.currentUser ? auth.currentUser.email + ' uid=' + auth.currentUser.uid : 'null（未登入）');
+
     var fsPayload = {};
     Object.keys(payload).forEach(function(k) {
       if (k === 'images') return;
@@ -2040,19 +2049,27 @@ async function submitForm() {
     fsPayload.userId      = currentUser.uid;
     fsPayload.userEmail   = currentUser.email;
     fsPayload.displayName = currentUser.displayName || '';
-    fsPayload.submittedAt = new Date().toISOString(); // 避免 serverTimestamp() 在 compat SDK 中無限 pending
+    fsPayload.submittedAt = new Date().toISOString();
     fsPayload.imageCount  = selectedImages.length;
 
-    console.log('[submitForm] 寫入 Firestore:', COL_PLANS, fsPayload);
+    console.log('[submitForm] 準備寫入:', COL_PLANS, fsPayload);
 
-    // 10 秒超時保護：Firestore add() 若無回應（規則未部署、網路問題）自動中止
-    var writePromise = db.collection(COL_PLANS).add(fsPayload);
-    var timeoutPromise = new Promise(function(_, reject) {
-      setTimeout(function() {
-        reject(new Error('寫入逾時（10 秒）。可能原因：Firestore 安全規則尚未部署，或網路連線問題。'));
-      }, 10000);
-    });
-    var docRef = await Promise.race([writePromise, timeoutPromise]);
+    // 讀取測試：確認 Firestore 連線正常及基本權限
+    console.log('[submitForm] Firestore 連線測試...');
+    await Promise.race([
+      db.collection(COL_USERS).doc(currentUser.uid).get(),
+      new Promise(function(_, reject) {
+        setTimeout(function() { reject({ code: 'timeout', message: '連線測試逾時（5s）' }); }, 5000);
+      })
+    ]);
+    console.log('[submitForm] 連線測試通過，開始寫入');
+
+    var docRef = await Promise.race([
+      db.collection(COL_PLANS).add(fsPayload),
+      new Promise(function(_, reject) {
+        setTimeout(function() { reject({ code: 'timeout', message: '寫入逾時（10s）' }); }, 10000);
+      })
+    ]);
     console.log('[submitForm] 寫入成功，doc id:', docRef.id);
 
     document.getElementById('successBanner').style.display = '';
@@ -2066,10 +2083,15 @@ async function submitForm() {
     showToast('✅ 計畫書已成功送出！');
     saveDraft();
   } catch(err) {
-    console.error('[submitForm] 失敗:', err);
-    var hint = (err.code === 'permission-denied')
-      ? '❌ Firestore 權限拒絕：請到 Firebase Console → Firestore → 規則 部署安全規則'
-      : '❌ 送出失敗：' + err.message;
+    console.error('[submitForm] 失敗 code=' + (err.code||'?') + ' msg=' + (err.message||err));
+    var hint;
+    if (err.code === 'permission-denied') {
+      hint = '❌ 沒有寫入權限，請聯絡計畫主持人';
+    } else if (err.code === 'timeout' || err.code === 'unavailable' || err.code === 'failed-precondition') {
+      hint = '❌ 網路連線問題，請檢查網路連線後重試';
+    } else {
+      hint = '❌ 送出失敗：' + (err.message || JSON.stringify(err));
+    }
     showToast(hint, 'danger');
   } finally {
     btn.disabled = false;
@@ -2409,6 +2431,9 @@ async function submitBudget() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中…';
   try {
+    console.log('[submitBudget] auth.currentUser:',
+      auth.currentUser ? auth.currentUser.email + ' uid=' + auth.currentUser.uid : 'null');
+
     var budgetPayload = {
       userId: currentUser.uid, userEmail: currentUser.email,
       displayName: currentUser.displayName || '',
@@ -2416,14 +2441,24 @@ async function submitBudget() {
       name: name, subject: subject, sub_plan_type: subPlan, plan_name: planName,
       main_items: mainItems, goods_items: goodsItems, data_items: dataItems
     };
-    console.log('[submitBudget] 寫入 Firestore:', COL_BUDGETS, budgetPayload);
-    var writePromise = db.collection(COL_BUDGETS).add(budgetPayload);
-    var timeoutPromise = new Promise(function(_, reject) {
-      setTimeout(function() {
-        reject(new Error('寫入逾時（10 秒）。可能原因：Firestore 安全規則尚未部署，或網路連線問題。'));
-      }, 10000);
-    });
-    await Promise.race([writePromise, timeoutPromise]);
+    console.log('[submitBudget] 準備寫入:', COL_BUDGETS, budgetPayload);
+
+    // 讀取測試
+    console.log('[submitBudget] Firestore 連線測試...');
+    await Promise.race([
+      db.collection(COL_USERS).doc(currentUser.uid).get(),
+      new Promise(function(_, reject) {
+        setTimeout(function() { reject({ code: 'timeout', message: '連線測試逾時（5s）' }); }, 5000);
+      })
+    ]);
+    console.log('[submitBudget] 連線測試通過，開始寫入');
+
+    await Promise.race([
+      db.collection(COL_BUDGETS).add(budgetPayload),
+      new Promise(function(_, reject) {
+        setTimeout(function() { reject({ code: 'timeout', message: '寫入逾時（10s）' }); }, 10000);
+      })
+    ]);
     console.log('[submitBudget] 寫入成功');
     var grand = document.getElementById('grandTotal').textContent;
     document.getElementById('b_successDetail').textContent = ' 共計 ' + grand + '，感謝 ' + name + ' 老師完成填報。';
@@ -2432,10 +2467,15 @@ async function submitBudget() {
     showToast('✅ 經費概算已成功送出！');
     saveDraft();
   } catch (err) {
-    console.error('[submitBudget] 失敗:', err);
-    var hint = (err.code === 'permission-denied')
-      ? '❌ Firestore 權限拒絕：請到 Firebase Console → Firestore → 規則 部署安全規則'
-      : '❌ 送出失敗：' + err.message;
+    console.error('[submitBudget] 失敗 code=' + (err.code||'?') + ' msg=' + (err.message||err));
+    var hint;
+    if (err.code === 'permission-denied') {
+      hint = '❌ 沒有寫入權限，請聯絡計畫主持人';
+    } else if (err.code === 'timeout' || err.code === 'unavailable' || err.code === 'failed-precondition') {
+      hint = '❌ 網路連線問題，請檢查網路連線後重試';
+    } else {
+      hint = '❌ 送出失敗：' + (err.message || JSON.stringify(err));
+    }
     showToast(hint, 'danger');
   } finally {
     btn.disabled = false;
