@@ -406,9 +406,14 @@ function exportAllToExcel() {
   var planHeaders = [
     '送出時間','姓名','科別','子計畫代號','計畫名稱',
     '課程類型','課程領域（上學期）','課程領域（下學期）',
+    '十二年國教核心素養','校本學生能力指標',
     '整體預期達成目標值','預期目標達成自評',
     '課程面規劃項目','社群面規劃項目','社群活動說明'
   ];
+  function joinArr(v) {
+    if (Array.isArray(v)) return v.join('、') || '—';
+    return v || '—';
+  }
   var planRows = [planHeaders];
   allPlans.forEach(function(p) {
     planRows.push([
@@ -420,10 +425,12 @@ function exportAllToExcel() {
       p.course_type  || '—',
       p.domain_s1    || '—',
       p.domain_s2    || '—',
+      joinArr(p.core_competencies),
+      joinArr(p.ability_indicators),
       p.goal_description || '—',
       p.achievement  || '—',
-      (p.course_activities     || []).join('、') || '—',
-      (p.community_activities  || []).join('、') || '—',
+      joinArr(p.course_activities),
+      joinArr(p.community_activities),
       p.activity_description || p.community_activity_desc || '—'
     ]);
   });
@@ -431,6 +438,7 @@ function exportAllToExcel() {
   wsPlan['!cols'] = [
     {wch:16},{wch:10},{wch:10},{wch:10},{wch:22},
     {wch:10},{wch:14},{wch:14},
+    {wch:40},{wch:30},
     {wch:40},{wch:16},
     {wch:30},{wch:30},{wch:40}
   ];

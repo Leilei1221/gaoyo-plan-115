@@ -338,6 +338,40 @@
             </div>
           </div>
         </div>
+
+        <!-- 課程面規劃項目（課程類型時必填）-->
+        <div class="col-12" id="a1-cact-block">
+          <label class="form-label fw-semibold">課程面規劃項目（可複選）<span class="required-star">*</span></label>
+          <div class="d-flex flex-wrap gap-3">
+            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="講座"><label class="form-check-label">講座</label></div>
+            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="戶外踏查"><label class="form-check-label">戶外踏查</label></div>
+            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="實作課程"><label class="form-check-label">實作課程</label></div>
+            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="入班授課"><label class="form-check-label">入班授課</label></div>
+            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:200px" placeholder="請說明..."></div>
+            <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="本分支計畫不申請課程面規劃項目所需經費"><label class="form-check-label text-muted small">本分支計畫不申請課程面規劃項目所需經費</label></div>
+          </div>
+        </div>
+
+        <!-- 社群面規劃項目（社群類型時必填）-->
+        <div class="col-12" id="a1-gact-block">
+          <label class="form-label fw-semibold">社群面規劃項目（可複選）<span class="required-star">*</span></label>
+          <div class="checkbox-grid">
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="計畫發展與檢討會議"><label class="form-check-label">計畫發展與檢討會議</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程研發與教材教法"><label class="form-check-label">課程研發與教材教法</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程共備與研討"><label class="form-check-label">課程共備與研討</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="公開備觀議課"><label class="form-check-label">公開備觀議課</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="數位課程規畫與教學實踐"><label class="form-check-label">數位課程規畫與教學實踐</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養導向課程與教學實踐"><label class="form-check-label">素養導向課程與教學實踐</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="AI與數位融入教學增能"><label class="form-check-label">AI與數位融入教學增能</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="雙語教學增能"><label class="form-check-label">雙語教學增能</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養命題與實作評量討論或增能"><label class="form-check-label">素養命題與實作評量討論或增能</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="蒐集學習回饋精進課程發展"><label class="form-check-label">蒐集學習回饋精進課程發展</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="區域聯合活動與校際交流"><label class="form-check-label">區域聯合活動與校際交流</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="專家學者諮詢輔導會議"><label class="form-check-label">專家學者諮詢輔導會議</label></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:200px" placeholder="請說明..."></div>
+            <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="本分支計畫不申請社群面規劃項目所需經費"><label class="form-check-label text-muted small">本分支計畫不申請社群面規劃項目所需經費</label></div>
+          </div>
+        </div>
       </div>
 
       <!-- ── 自我檢視備忘區（115年新版移出欄位，僅自動存檔，不列入送出資料）── -->
@@ -351,37 +385,10 @@
           </button>
         </div>
         <div class="alert alert-warning py-1 px-2 small mb-2">
-          <i class="bi bi-info-circle me-1"></i>此區為 115年新版移出欄位，供老師自我檢視使用，<strong>不列入送出資料</strong>，但會自動存檔。
+          <i class="bi bi-info-circle me-1"></i>此區為選填備忘，<strong>不列入送出資料</strong>，但會自動存檔。
         </div>
         <div id="a1MemoBody" class="collapse">
           <div class="row g-3">
-            <div class="col-12" id="a1-gact-block">
-              <label class="form-label fw-semibold small">【社群面】規劃項目（可複選）</label>
-              <div class="checkbox-grid">
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="計畫發展與檢討會議"><label class="form-check-label">計畫發展與檢討會議</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程研發與教材教法"><label class="form-check-label">課程研發與教材教法</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="課程共備與研討"><label class="form-check-label">課程共備與研討</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="公開觀議課"><label class="form-check-label">公開觀議課</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養導向課程與教學"><label class="form-check-label">素養導向課程與教學</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="學科地圖"><label class="form-check-label">學科地圖</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="素養命題與實作評量"><label class="form-check-label">素養命題與實作評量</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="雙語教學增能"><label class="form-check-label">雙語教學增能</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="AI工具融入教學"><label class="form-check-label">AI工具融入教學</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="資訊融入教學"><label class="form-check-label">資訊融入教學</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="跨域協作"><label class="form-check-label">跨域協作</label></div>
-                <div class="form-check"><input class="form-check-input a1-gact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:160px" placeholder="請說明..."></div>
-              </div>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold small">【課程面】規劃項目（可複選）</label>
-              <div class="d-flex flex-wrap gap-3">
-                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="講座"><label class="form-check-label">講座</label></div>
-                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="戶外踏查"><label class="form-check-label">戶外踏查</label></div>
-                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="實作課程"><label class="form-check-label">實作課程</label></div>
-                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="入班授課"><label class="form-check-label">入班授課</label></div>
-                <div class="form-check"><input class="form-check-input a1-cact" type="checkbox" value="其他" onchange="toggleOtherInput(this)"><label class="form-check-label me-1">其他</label><input type="text" class="form-control form-control-sm other-input ms-1" style="display:none;max-width:160px" placeholder="請說明..."></div>
-              </div>
-            </div>
             <div class="col-md-6">
               <label class="form-label fw-semibold small">AI 工具應用說明（選填）</label>
               <textarea id="a1_memo_ai_notes" class="form-control form-control-sm" rows="2" placeholder="如何在課程/社群中運用 AI 工具..."></textarea>
@@ -1625,7 +1632,7 @@ function updateNameLabel() {
 function toggleA1Fields() {
   var isCourse = document.getElementById('typeC').checked;
   // 課程專屬欄位（社群時隱藏）
-  ['a1-course-block-type','a1-course-block-s1','a1-course-block-s2'].forEach(function(id) {
+  ['a1-course-block-type','a1-course-block-s1','a1-course-block-s2','a1-cact-block'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.style.display = isCourse ? '' : 'none';
   });
@@ -1675,7 +1682,7 @@ function buildPayload() {
       course_code: v('a1_course_code'),
       course_type: getRadio('a1_course_type'),
       core_competencies: getChecked('a1-competency'),
-      ability_indicators: getChecked('a1-ability').join('、'),
+      ability_indicators: getChecked('a1-ability'),
       domain_s1: getRadio('a1_domain_s1'),
       domain_s2: getRadio('a1_domain_s2'),
       course_activities: getChecked('a1-cact'),
@@ -1775,6 +1782,21 @@ function validate(payload) {
   if (!payload.sub_plan_type) { alert('請選擇子計畫'); return false; }
   if (payload.sub_plan_type === 'b2' && !payload.plan_goal) { alert('B2 請填寫計畫目標'); return false; }
   if (payload.sub_plan_type === 'c' && !payload.plan_subtype) { alert('C計畫請選擇細項類別'); return false; }
+  if (payload.sub_plan_type === 'a1') {
+    var isCourse = document.getElementById('typeC').checked;
+    var CACT_SKIP = '本分支計畫不申請課程面規劃項目所需經費';
+    var GACT_SKIP = '本分支計畫不申請社群面規劃項目所需經費';
+    var cacts = payload.course_activities || [];
+    var gacts = payload.community_activities || [];
+    if (isCourse && cacts.length === 0) {
+      alert('課程類型：請至少勾選一項「課程面規劃項目」，或勾選「本分支計畫不申請課程面規劃項目所需經費」');
+      return false;
+    }
+    if (!isCourse && gacts.length === 0) {
+      alert('社群類型：請至少勾選一項「社群面規劃項目」，或勾選「本分支計畫不申請社群面規劃項目所需經費」');
+      return false;
+    }
+  }
   return true;
 }
 
@@ -1869,9 +1891,11 @@ function loadOldPlan() {
         if (el) el.checked = true;
       });
     }
-    // 校本能力指標勾選（字串以、或,分隔）
+    // 校本能力指標勾選（陣列或字串皆可）
     if (f.ability_indicators) {
-      var abilities = f.ability_indicators.split(/[、,，\s]+/).map(function(s){ return s.trim(); });
+      var abilities = Array.isArray(f.ability_indicators)
+        ? f.ability_indicators
+        : f.ability_indicators.split(/[、,，\s]+/).map(function(s){ return s.trim(); });
       abilities.forEach(function(a){
         var el = document.querySelector('.a1-ability[value="'+a+'"]');
         if (el) el.checked = true;
