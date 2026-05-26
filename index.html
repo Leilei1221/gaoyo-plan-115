@@ -1177,13 +1177,13 @@
 <!-- Toast 通知容器 -->
 <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:8000;display:flex;flex-direction:column;gap:.5rem;pointer-events:none"></div>
 
-<!-- Firebase SDK (compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut as _firebaseSignOut, reauthenticateWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
 // ════════════════════════════════════════════════════════
 // Firebase 設定與初始化
 // ════════════════════════════════════════════════════════
@@ -1195,11 +1195,9 @@ const firebaseConfig = {
   messagingSenderId: "1089473790781",
   appId: "1:1089473790781:web:a2f22b4729a9918446bb54"
 };
-firebase.initializeApp(firebaseConfig);
-// 指定非預設資料庫（named database）
-firebase.firestore().settings({ databaseId: 'ai-studio-9203363b-29a9-463f-9e9c-6abf638a049a' });
-var auth = firebase.auth();
-var db   = firebase.firestore();
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app, 'ai-studio-9203363b-29a9-463f-9e9c-6abf638a049a');
 
 var ALLOWED_DOMAIN  = 'hlhs.hlc.edu.tw';
 var ADMIN_EMAIL     = 'phyllis@hlhs.hlc.edu.tw';
@@ -1215,16 +1213,16 @@ var googleAccessToken  = null;
 
 // ── Auth ──
 function signInWithGoogle() {
-  var provider = new firebase.auth.GoogleAuthProvider();
+  var provider = new GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.file');
   provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
   document.getElementById('loginBtn').disabled = true;
   document.getElementById('loginError').classList.add('d-none');
-  auth.signInWithPopup(provider)
+  signInWithPopup(auth, provider)
     .then(function(result) {
       googleAccessToken = result.credential.accessToken;
       if (!result.user.email.endsWith('@' + ALLOWED_DOMAIN)) {
-        auth.signOut();
+        _firebaseSignOut(auth);
         showLoginErr('僅限 @' + ALLOWED_DOMAIN + ' 帳號，您的帳號無法使用此系統。');
       }
     })
@@ -1243,10 +1241,10 @@ function showLoginErr(msg) {
 }
 
 function signOutUser() {
-  if (confirm('確定要登出嗎？')) auth.signOut();
+  if (confirm('確定要登出嗎？')) _firebaseSignOut(auth);
 }
 
-auth.onAuthStateChanged(function(user) {
+onAuthStateChanged(auth, function(user) {
   if (user && user.email.endsWith('@' + ALLOWED_DOMAIN)) {
     currentUser = user;
     document.getElementById('loginOverlay').style.display = 'none';
@@ -1256,12 +1254,12 @@ auth.onAuthStateChanged(function(user) {
       document.getElementById('adminLink').style.display = '';
     }
     // 更新使用者登入紀錄
-    var userRef = db.collection(COL_USERS).doc(user.uid);
-    userRef.set({
+    var userRef = doc(db, COL_USERS, user.uid);
+    setDoc(userRef, {
       email: user.email, displayName: user.displayName || '', photoURL: user.photoURL || '',
-      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+      lastLogin: serverTimestamp()
     }, { merge: true });
-    userRef.update({ firstLogin: firebase.firestore.FieldValue.serverTimestamp() })
+    updateDoc(userRef, { firstLogin: serverTimestamp() })
       .catch(function(){}); // 只有第一次才設定，之後 set(merge) 不會覆蓋
     loadDraft();
     setupAutoSave();
@@ -1294,11 +1292,11 @@ function scheduleDraftSave() {
 function saveDraft() {
   if (!currentUser) return;
   showSaveStatus('saving');
-  db.collection(COL_DRAFTS).doc(currentUser.uid).set({
+  setDoc(doc(db, COL_DRAFTS, currentUser.uid), {
     plan:      collectDraftPlan(),
     budget:    collectDraftBudget(),
     userEmail: currentUser.email,
-    lastSaved: firebase.firestore.FieldValue.serverTimestamp()
+    lastSaved: serverTimestamp()
   }, { merge: true })
   .then(function() { showSaveStatus('saved'); })
   .catch(function(e) { console.error(e); showSaveStatus('error'); });
@@ -1398,10 +1396,10 @@ function collectDraftBudget() {
 // ── 載入草稿 ──
 function loadDraft() {
   if (!currentUser) return;
-  db.collection(COL_DRAFTS).doc(currentUser.uid).get()
-    .then(function(doc) {
-      if (!doc.exists) return;
-      var d = doc.data();
+  getDoc(doc(db, COL_DRAFTS, currentUser.uid))
+    .then(function(docSnap) {
+      if (!docSnap.exists()) return;
+      var d = docSnap.data();
       if (d.plan)   restoreDraftPlan(d.plan);
       if (d.budget) restoreDraftBudget(d.budget);
       if (d.lastSaved) {
@@ -1527,9 +1525,9 @@ function showToast(msg, type) {
 // ── Google Drive 上傳 ──
 function ensureDriveToken() {
   if (googleAccessToken) return Promise.resolve(googleAccessToken);
-  var provider = new firebase.auth.GoogleAuthProvider();
+  var provider = new GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/drive.file');
-  return auth.currentUser.reauthenticateWithPopup(provider)
+  return reauthenticateWithPopup(auth.currentUser, provider)
     .then(function(result) { googleAccessToken = result.credential.accessToken; return googleAccessToken; });
 }
 
@@ -1566,7 +1564,7 @@ function handleFileUpload(input, type) {
     var url = 'https://drive.google.com/file/d/' + data.id + '/view';
     showToast('✅ 已成功上傳至計畫主持人的雲端硬碟', 'success');
     if (currentUser) {
-      db.collection(COL_SUBMISSIONS).add({
+      addDoc(collection(db, COL_SUBMISSIONS), {
         userId: currentUser.uid,
         userEmail: currentUser.email,
         displayName: currentUser.displayName || '',
@@ -1574,16 +1572,14 @@ function handleFileUpload(input, type) {
         subPlan: subPlan,
         filename: filename,
         driveUrl: url,
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+        submittedAt: serverTimestamp()
       });
     }
   }).catch(function(e) {
     showToast('❌ 上傳失敗：' + e.message, 'danger');
   });
 }
-</script>
 
-<script>
 // ── 計畫書 GAS URL（保留備用，主要已改用 Firestore） ──
 var GAS_URL = "https://script.google.com/macros/s/AKfycbxjvTPlvp0TGiIKXhZRcGfItKUlMZErtG7W93M-R5T9OIpUIRSqrF0F9AEuCxprYXE3Tw/exec";
 
@@ -2057,7 +2053,7 @@ async function submitForm() {
     // 讀取測試：確認 Firestore 連線正常及基本權限
     console.log('[submitForm] Firestore 連線測試...');
     await Promise.race([
-      db.collection(COL_USERS).doc(currentUser.uid).get(),
+      getDoc(doc(db, COL_USERS, currentUser.uid)),
       new Promise(function(_, reject) {
         setTimeout(function() { reject({ code: 'timeout', message: '連線測試逾時（5s）' }); }, 5000);
       })
@@ -2065,7 +2061,7 @@ async function submitForm() {
     console.log('[submitForm] 連線測試通過，開始寫入');
 
     var docRef = await Promise.race([
-      db.collection(COL_PLANS).add(fsPayload),
+      addDoc(collection(db, COL_PLANS), fsPayload),
       new Promise(function(_, reject) {
         setTimeout(function() { reject({ code: 'timeout', message: '寫入逾時（10s）' }); }, 10000);
       })
@@ -2446,7 +2442,7 @@ async function submitBudget() {
     // 讀取測試
     console.log('[submitBudget] Firestore 連線測試...');
     await Promise.race([
-      db.collection(COL_USERS).doc(currentUser.uid).get(),
+      getDoc(doc(db, COL_USERS, currentUser.uid)),
       new Promise(function(_, reject) {
         setTimeout(function() { reject({ code: 'timeout', message: '連線測試逾時（5s）' }); }, 5000);
       })
@@ -2454,7 +2450,7 @@ async function submitBudget() {
     console.log('[submitBudget] 連線測試通過，開始寫入');
 
     await Promise.race([
-      db.collection(COL_BUDGETS).add(budgetPayload),
+      addDoc(collection(db, COL_BUDGETS), budgetPayload),
       new Promise(function(_, reject) {
         setTimeout(function() { reject({ code: 'timeout', message: '寫入逾時（10s）' }); }, 10000);
       })
@@ -2495,6 +2491,31 @@ document.addEventListener('DOMContentLoaded', function() {
   addDataRow('s2DataBody', 's2Data');
   // 自動存檔監聽在 auth.onAuthStateChanged 後的 setupAutoSave() 中設定
 });
+
+// ════════ Expose functions to global scope for HTML event handlers ════════
+window.signInWithGoogle   = signInWithGoogle;
+window.signOutUser        = signOutUser;
+window.onOldTeacherChange = onOldTeacherChange;
+window.onOldPlanChange    = onOldPlanChange;
+window.loadOldPlan        = loadOldPlan;
+window.updateNameLabel    = updateNameLabel;
+window.toggleA1Fields     = toggleA1Fields;
+window.showPlanSection    = showPlanSection;
+window.toggleOtherInput   = toggleOtherInput;
+window.switchToBudget     = switchToBudget;
+window.submitForm         = submitForm;
+window.uploadFileToDrive  = uploadFileToDrive;
+window.handleFileUpload   = handleFileUpload;
+window.addRow             = addRow;
+window.addGoodsRow        = addGoodsRow;
+window.addDataRow         = addDataRow;
+window.submitBudget       = submitBudget;
+window.handleImageSelect  = handleImageSelect;
+window.removeImage        = removeImage;
+window.onCategoryChange   = onCategoryChange;
+window.deleteRow          = deleteRow;
+window.recalcRow          = recalcRow;
+window.recalcGoodsRow     = recalcGoodsRow;
 </script>
 </body>
 </html>
