@@ -1683,6 +1683,7 @@ function buildPayload() {
       goal_description: v('a1_goal'),
       community_members: v('a1_community_members'),
       community_activity_desc: v('a1_community_desc'),
+      activity_description: v('a1_community_desc'),
       achievement: getRadio('a1_achievement'),
     });
   }
@@ -2042,11 +2043,15 @@ async function submitForm() {
       var val = payload[k];
       if (val !== undefined) fsPayload[k] = val;
     });
-    fsPayload.userId      = currentUser.uid;
-    fsPayload.userEmail   = currentUser.email;
-    fsPayload.displayName = currentUser.displayName || '';
-    fsPayload.submittedAt = new Date().toISOString();
-    fsPayload.imageCount  = selectedImages.length;
+    fsPayload.userId       = currentUser.uid;
+    fsPayload.userEmail    = currentUser.email;
+    fsPayload.displayName  = currentUser.displayName || '';
+    fsPayload.submittedAt  = new Date().toISOString();
+    fsPayload.imageCount   = selectedImages.length;
+    // 欄位別名，確保匯出 Excel 時欄位完整
+    fsPayload.teacher_name = fsPayload.name || '';
+    fsPayload.department   = fsPayload.subject || '';
+    fsPayload.course_name  = fsPayload.plan_name || '';
 
     console.log('[submitForm] 準備寫入:', COL_PLANS, fsPayload);
 

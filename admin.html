@@ -402,55 +402,132 @@ function clearFilter() {
 function exportAllToExcel() {
   var wb = XLSX.utils.book_new();
 
-  // 計畫書清單
-  var planRows = [['送出時間','姓名','科別','子計畫','計畫名稱','類型','預期目標','自評','圖片數']];
-  allPlans.forEach(function(p){
+  // ── 工作表一：計畫書清單 ──
+  var planHeaders = [
+    '送出時間','姓名','科別','子計畫代號','計畫名稱',
+    '課程類型','課程領域（上學期）','課程領域（下學期）',
+    '整體預期達成目標值','預期目標達成自評',
+    '課程面規劃項目','社群面規劃項目','社群活動說明'
+  ];
+  var planRows = [planHeaders];
+  allPlans.forEach(function(p) {
     planRows.push([
-      fmtDate(p.submittedAt), p.name||'', p.subject||'', (p.sub_plan_type||'').toUpperCase(),
-      p.plan_name||'', p.plan_name_type==='community'?'社群':'課程',
-      p.goal_description||p.goal||'', p.achievement||'',
-      (p.images&&p.images.length)||0
+      fmtDate(p.submittedAt),
+      p.teacher_name || p.name || '—',
+      p.department   || p.subject || '—',
+      (p.sub_plan_type || '').toUpperCase(),
+      p.course_name  || p.plan_name || '—',
+      p.course_type  || '—',
+      p.domain_s1    || '—',
+      p.domain_s2    || '—',
+      p.goal_description || '—',
+      p.achievement  || '—',
+      (p.course_activities     || []).join('、') || '—',
+      (p.community_activities  || []).join('、') || '—',
+      p.activity_description || p.community_activity_desc || '—'
     ]);
   });
   var wsPlan = XLSX.utils.aoa_to_sheet(planRows);
-  wsPlan['!cols'] = [{wch:16},{wch:10},{wch:12},{wch:10},{wch:22},{wch:6},{wch:40},{wch:14},{wch:6}];
+  wsPlan['!cols'] = [
+    {wch:16},{wch:10},{wch:10},{wch:10},{wch:22},
+    {wch:10},{wch:14},{wch:14},
+    {wch:40},{wch:16},
+    {wch:30},{wch:30},{wch:40}
+  ];
   XLSX.utils.book_append_sheet(wb, wsPlan, '計畫書清單');
 
-  // 經費概算清單
-  var budgetRows = [['送出時間','姓名','科別','子計畫','計畫名稱','上學期主表(仟)','上學期物品費(仟)','上學期資蒐費(仟)','下學期主表(仟)','下學期物品費(仟)','下學期資蒐費(仟)','總計(仟)']];
-  allBudgets.forEach(function(b){
-    function sumBySem(items,sem){ return (items||[]).filter(function(i){return i.semester===sem;}).reduce(function(s,i){return s+(i.amount||0);},0); }
-    var s1m=sumBySem(b.main_items,'上學期'), s1g=sumBySem(b.goods_items,'上學期'), s1d=sumBySem(b.data_items,'上學期');
-    var s2m=sumBySem(b.main_items,'下學期'), s2g=sumBySem(b.goods_items,'下學期'), s2d=sumBySem(b.data_items,'下學期');
+  // ── 工作表二：經費概算清單 ──
+  var budgetHeaders = [
+    '送出時間','姓名','科別','子計畫代號',
+    '上學期總計（仟元）','下學期總計（仟元）','全年總計（仟元）'
+  ];
+  var budgetRows = [budgetHeaders];
+  allBudgets.forEach(function(b) {
+    function sumBySem(items, sem) {
+      return (items || []).filter(function(i) { return i.semester === sem; })
+        .reduce(function(s, i) { return s + (i.amount || 0); }, 0);
+    }
+    function suppBySem(items, sem) {
+      return (items || []).filter(function(i) {
+        return i.semester === sem && (function(c) {
+          return c.includes('鐘點費') || c.includes('諮詢費') || c.includes('輔導費') ||
+                 c.includes('指導費') || c.includes('稿費') || c.includes('臨時工作人員');
+        })(i.category || '');
+      }).reduce(function(s, i) { return s + (i.amount || 0); }, 0);
+    }
+    var s1Main  = sumBySem(b.main_items,  '上學期');
+    var s2Main  = sumBySem(b.main_items,  '下學期');
+    var s1Supp  = suppBySem(b.main_items, '上學期') * 0.0211;
+    var s2Supp  = suppBySem(b.main_items, '下學期') * 0.0211;
+    var s1Goods = sumBySem(b.goods_items, '上學期');
+    var s2Goods = sumBySem(b.goods_items, '下學期');
+    var s1Data  = sumBySem(b.data_items,  '上學期');
+    var s2Data  = sumBySem(b.data_items,  '下學期');
+    var s1Total = s1Main + s1Supp + s1Goods + s1Data;
+    var s2Total = s2Main + s2Supp + s2Goods + s2Data;
     budgetRows.push([
-      fmtDate(b.submittedAt), b.name||'', b.subject||'', (b.sub_plan_type||'').toUpperCase(), b.plan_name||'',
-      parseFloat(s1m.toFixed(3)), parseFloat(s1g.toFixed(3)), parseFloat(s1d.toFixed(3)),
-      parseFloat(s2m.toFixed(3)), parseFloat(s2g.toFixed(3)), parseFloat(s2d.toFixed(3)),
-      parseFloat((s1m+s1g+s1d+s2m+s2g+s2d).toFixed(3))
+      fmtDate(b.submittedAt),
+      b.name    || '—',
+      b.subject || '—',
+      (b.sub_plan_type || '').toUpperCase(),
+      parseFloat(s1Total.toFixed(3)),
+      parseFloat(s2Total.toFixed(3)),
+      parseFloat((s1Total + s2Total).toFixed(3))
     ]);
   });
   var wsBudget = XLSX.utils.aoa_to_sheet(budgetRows);
-  wsBudget['!cols'] = [{wch:16},{wch:10},{wch:12},{wch:10},{wch:22},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:10}];
+  wsBudget['!cols'] = [{wch:16},{wch:10},{wch:10},{wch:10},{wch:16},{wch:16},{wch:12}];
   XLSX.utils.book_append_sheet(wb, wsBudget, '經費概算清單');
 
-  // 老師清單
-  var userRows = [['姓名','Email','最後登入']];
-  allUsers.forEach(function(u){ userRows.push([u.displayName||'', u.email||'', fmtDate(u.lastLogin)]); });
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(userRows), '老師清單');
-
-  // 繳交狀況矩陣
-  var subPlans = ['a1','a2','b1-1','b1-2','b1-3','b2','b3','c'];
-  var matrixRows = [['老師姓名','Email'].concat(subPlans.map(function(s){return s.toUpperCase();}))];
-  var submittedSet = {};
-  allPlans.forEach(function(p){ submittedSet[(p.userEmail||'')+'|'+(p.sub_plan_type||'')] = true; });
-  allUsers.forEach(function(u){
-    matrixRows.push([u.displayName||'', u.email||''].concat(subPlans.map(function(s){
-      return submittedSet[(u.email||'')+'|'+s] ? '✓' : '';
-    })));
+  // ── 工作表三：老師清單 ──
+  // 從計畫書推導 email → 科別、已送出子計畫數
+  var emailToSubject = {};
+  var emailPlanCount = {};
+  allPlans.forEach(function(p) {
+    var e = p.userEmail || '';
+    if (e && (p.department || p.subject)) {
+      emailToSubject[e] = p.department || p.subject;
+    }
+    emailPlanCount[e] = (emailPlanCount[e] || 0) + 1;
   });
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(matrixRows), '繳交狀況矩陣');
+  var userHeaders = ['姓名', 'Email', '科別', '最後登入時間', '已送出子計畫數'];
+  var userRows = [userHeaders];
+  allUsers.forEach(function(u) {
+    userRows.push([
+      u.displayName || '—',
+      u.email       || '—',
+      emailToSubject[u.email] || '—',
+      fmtDate(u.lastLogin),
+      emailPlanCount[u.email] || 0
+    ]);
+  });
+  var wsUsers = XLSX.utils.aoa_to_sheet(userRows);
+  wsUsers['!cols'] = [{wch:12},{wch:30},{wch:12},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsUsers, '老師清單');
 
-  var today = new Date().toLocaleDateString('zh-TW').replace(/\//g,'-');
+  // ── 工作表四：繳交狀況矩陣 ──
+  var subPlans  = ['a1','a2','b1-1','b1-2','b1-3','b2','b3','c'];
+  var subLabels = ['A-1','A-2','B1-1','B1-2','B1-3','B2','B3','C'];
+  var submittedSet = {};
+  allPlans.forEach(function(p) {
+    submittedSet[(p.userEmail || '') + '|' + (p.sub_plan_type || '')] = true;
+  });
+  var matrixHeaders = ['老師姓名', 'Email'].concat(subLabels);
+  var matrixRows = [matrixHeaders];
+  allUsers.forEach(function(u) {
+    matrixRows.push(
+      [u.displayName || '—', u.email || ''].concat(
+        subPlans.map(function(s) {
+          return submittedSet[(u.email || '') + '|' + s] ? '✓' : '—';
+        })
+      )
+    );
+  });
+  var wsMatrix = XLSX.utils.aoa_to_sheet(matrixRows);
+  wsMatrix['!cols'] = [{wch:12},{wch:30}].concat(subLabels.map(function() { return {wch:8}; }));
+  XLSX.utils.book_append_sheet(wb, wsMatrix, '繳交狀況矩陣');
+
+  var today = new Date().toLocaleDateString('zh-TW').replace(/\//g, '-');
   XLSX.writeFile(wb, '115優高計畫_全校繳交狀況_' + today + '.xlsx');
 }
 
