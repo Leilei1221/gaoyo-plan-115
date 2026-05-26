@@ -228,20 +228,61 @@ auth.onAuthStateChanged(function(user) {
 
 function loadAllData() {
   showStatus('載入資料中...');
-  Promise.all([
-    db.collection('gaoyo_plans').orderBy('submittedAt','desc').get(),
-    db.collection('gaoyo_budgets').orderBy('submittedAt','desc').get(),
-    db.collection('gaoyo_users').orderBy('lastLogin','desc').get()
-  ]).then(function(results) {
-    allPlans   = results[0].docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
-    allBudgets = results[1].docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
-    allUsers   = results[2].docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
-    renderStats();
-    applyFilter();
-    renderStatusMatrix();
-    renderUsersTable();
-    showStatus('');
-  }).catch(function(err){ showStatus('❌ 載入失敗：' + err.message); });
+  var errHtml = function(msg) {
+    return '<tr><td colspan="8" class="text-center text-danger py-3"><i class="bi bi-exclamation-triangle me-1"></i>' + msg + '</td></tr>';
+  };
+
+  // 逐一查詢，避免單一集合失敗拖垮其他
+  function safeGet(colName) {
+    return db.collection(colName).orderBy('submittedAt', 'desc').get()
+      .catch(function(e) {
+        console.error(colName + ' 查詢失敗:', e);
+        return { docs: [], error: e };
+      });
+  }
+  function safeGetUsers() {
+    return db.collection('gaoyo_users').orderBy('lastLogin', 'desc').get()
+      .catch(function(e) {
+        console.error('gaoyo_users 查詢失敗:', e);
+        return { docs: [], error: e };
+      });
+  }
+
+  Promise.all([safeGet('gaoyo_plans'), safeGet('gaoyo_budgets'), safeGetUsers()])
+    .then(function(results) {
+      var plansRes = results[0], budgetsRes = results[1], usersRes = results[2];
+
+      if (plansRes.error) {
+        var code = plansRes.error.code || '';
+        var hint = code === 'permission-denied'
+          ? '⚠ 權限不足：請到 Firebase Console → Firestore → 規則，部署 firestore.rules 中的安全規則'
+          : '❌ gaoyo_plans 載入失敗：' + plansRes.error.message;
+        document.getElementById('plansTableBody').innerHTML =
+          '<tr><td colspan="8" class="text-center text-danger py-3">' + hint + '</td></tr>';
+        allPlans = [];
+      } else {
+        allPlans = plansRes.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      }
+
+      if (budgetsRes.error) {
+        allBudgets = [];
+      } else {
+        allBudgets = budgetsRes.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      }
+
+      if (usersRes.error) {
+        allUsers = [];
+      } else {
+        allUsers = usersRes.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      }
+
+      renderStats();
+      applyFilter();
+      renderStatusMatrix();
+      renderUsersTable();
+      var loaded = allPlans.length + allBudgets.length;
+      showStatus(loaded > 0 ? '✅ 共載入 ' + loaded + ' 筆資料' : '資料庫目前無記錄，或 Firestore 安全規則尚未部署');
+    });
 }
 
 function fmtDate(ts) {
@@ -300,7 +341,7 @@ function renderBudgetsTable(budgets) {
 function renderStatusMatrix() {
   var subPlans = ['a1','a2','b1-1','b1-2','b1-3','b2','b3','c'];
   var container = document.getElementById('statusMatrix');
-  if (!allUsers.length) { container.innerHTML='<p class="text-muted small">尚無老師登入</p>'; return; }
+  if (!allUsers.length) { container.innerHTML='<p class="text-muted small">尚無老師登入記錄，或 gaoyo_users 集合為空</p>'; return; }
   var submittedSet = {};
   allPlans.forEach(function(p){ submittedSet[(p.userEmail||'')+'|'+(p.sub_plan_type||'')] = true; });
 
