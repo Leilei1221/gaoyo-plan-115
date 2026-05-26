@@ -25,5 +25,9 @@ service cloud.firestore {
       allow read, write: if isHlhsUser() && request.auth.uid == userId;
       allow read: if isAdmin();
     }
+    match /gaoyo_submissions/{docId} {
+      allow create: if isHlhsUser();
+      allow read: if isAdmin();
+    }
   }
 }
