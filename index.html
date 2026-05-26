@@ -2031,7 +2031,6 @@ async function submitForm() {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中...';
 
   try {
-    // 組合 Firestore 資料：排除 undefined 欄位與大型 base64 圖片（超過 1MB 限制）
     var fsPayload = {};
     Object.keys(payload).forEach(function(k) {
       if (k === 'images') return;
@@ -2041,12 +2040,20 @@ async function submitForm() {
     fsPayload.userId      = currentUser.uid;
     fsPayload.userEmail   = currentUser.email;
     fsPayload.displayName = currentUser.displayName || '';
-    fsPayload.submittedAt = firebase.firestore.FieldValue.serverTimestamp();
+    fsPayload.submittedAt = new Date().toISOString(); // 避免 serverTimestamp() 在 compat SDK 中無限 pending
     fsPayload.imageCount  = selectedImages.length;
 
     console.log('[submitForm] 寫入 Firestore:', COL_PLANS, fsPayload);
-    await db.collection(COL_PLANS).add(fsPayload);
-    console.log('[submitForm] 寫入成功');
+
+    // 10 秒超時保護：Firestore add() 若無回應（規則未部署、網路問題）自動中止
+    var writePromise = db.collection(COL_PLANS).add(fsPayload);
+    var timeoutPromise = new Promise(function(_, reject) {
+      setTimeout(function() {
+        reject(new Error('寫入逾時（10 秒）。可能原因：Firestore 安全規則尚未部署，或網路連線問題。'));
+      }, 10000);
+    });
+    var docRef = await Promise.race([writePromise, timeoutPromise]);
+    console.log('[submitForm] 寫入成功，doc id:', docRef.id);
 
     document.getElementById('successBanner').style.display = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2060,8 +2067,8 @@ async function submitForm() {
     saveDraft();
   } catch(err) {
     console.error('[submitForm] 失敗:', err);
-    var hint = err.code === 'permission-denied'
-      ? '❌ Firestore 權限拒絕：請確認安全規則已在 Firebase Console 部署'
+    var hint = (err.code === 'permission-denied')
+      ? '❌ Firestore 權限拒絕：請到 Firebase Console → Firestore → 規則 部署安全規則'
       : '❌ 送出失敗：' + err.message;
     showToast(hint, 'danger');
   } finally {
@@ -2402,13 +2409,22 @@ async function submitBudget() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中…';
   try {
-    await db.collection(COL_BUDGETS).add({
+    var budgetPayload = {
       userId: currentUser.uid, userEmail: currentUser.email,
       displayName: currentUser.displayName || '',
-      submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      submittedAt: new Date().toISOString(),
       name: name, subject: subject, sub_plan_type: subPlan, plan_name: planName,
       main_items: mainItems, goods_items: goodsItems, data_items: dataItems
+    };
+    console.log('[submitBudget] 寫入 Firestore:', COL_BUDGETS, budgetPayload);
+    var writePromise = db.collection(COL_BUDGETS).add(budgetPayload);
+    var timeoutPromise = new Promise(function(_, reject) {
+      setTimeout(function() {
+        reject(new Error('寫入逾時（10 秒）。可能原因：Firestore 安全規則尚未部署，或網路連線問題。'));
+      }, 10000);
     });
+    await Promise.race([writePromise, timeoutPromise]);
+    console.log('[submitBudget] 寫入成功');
     var grand = document.getElementById('grandTotal').textContent;
     document.getElementById('b_successDetail').textContent = ' 共計 ' + grand + '，感謝 ' + name + ' 老師完成填報。';
     document.getElementById('b_successBanner').style.display = 'block';
@@ -2416,10 +2432,15 @@ async function submitBudget() {
     showToast('✅ 經費概算已成功送出！');
     saveDraft();
   } catch (err) {
-    alert('送出失敗：' + err.message);
+    console.error('[submitBudget] 失敗:', err);
+    var hint = (err.code === 'permission-denied')
+      ? '❌ Firestore 權限拒絕：請到 Firebase Console → Firestore → 規則 部署安全規則'
+      : '❌ 送出失敗：' + err.message;
+    showToast(hint, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send me-2"></i>送出經費概算';
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="bi bi-send me-2"></i>送出經費概算';
 }
 
 // 頁面載入後，初始化預設列
