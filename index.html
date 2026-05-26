@@ -1703,7 +1703,6 @@ function buildPayload() {
       plan115: getChecked('b11-plan115'),
       goal_description: v('b11_goal'),
       achievement: getRadio('b11_achievement'),
-      images: selectedImages,
     });
   }
   if (sub === 'b1-2') {
@@ -1717,7 +1716,6 @@ function buildPayload() {
       implementation: v('b12_implementation'),
       goal_description: v('b12_goal'),
       achievement: getRadio('b12_achievement'),
-      images: selectedImages,
     });
   }
   if (sub === 'b1-3') {
@@ -1731,7 +1729,6 @@ function buildPayload() {
       plan115: getChecked('b13-plan115'),
       goal_description: v('b13_goal'),
       achievement: getRadio('b13_achievement'),
-      images: selectedImages,
     });
   }
   if (sub === 'b2') {
@@ -1745,7 +1742,6 @@ function buildPayload() {
       implementation_strategy: v('b2_strategy'),
       goal_description: v('b2_goal'),
       achievement: getRadio('b2_achievement'),
-      images: selectedImages,
     });
   }
   if (sub === 'b3') {
@@ -1755,7 +1751,6 @@ function buildPayload() {
       activities: getChecked('b3-activity'),
       goal_description: v('b3_goal'),
       achievement: getRadio('b3_achievement'),
-      images: selectedImages,
     });
   }
   if (sub === 'c') {
@@ -1766,7 +1761,6 @@ function buildPayload() {
       activities: getChecked('c-activity'),
       goal_description: v('c_goal'),
       achievement: getRadio('c_achievement'),
-      images: selectedImages,
     });
   }
   return base;
