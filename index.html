@@ -311,7 +311,7 @@
         </div>
 
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <div class="hint mb-1">格式：1.對象（人數）2.主要活動數量：X場 3.內容：... 4.預期成效：...</div>
           <textarea id="a1_goal" class="form-control" rows="4" placeholder="請依格式填寫..."></textarea>
         </div>
@@ -453,7 +453,7 @@
           <textarea id="b12_implementation" class="form-control" rows="2" placeholder="如有其他規劃或補充說明請填寫..."></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="b12_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -517,7 +517,7 @@
             placeholder="行政支持面：...&#10;教師教學面：...&#10;學生學習面：..."></textarea>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="b2_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -565,7 +565,7 @@
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="a2_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -617,7 +617,7 @@
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="b11_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -697,7 +697,7 @@
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="b13_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -739,7 +739,7 @@
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="b3_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -790,7 +790,7 @@
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label fw-semibold">整體預期達成目標值 <span class="required-star">*</span></label>
+          <label class="form-label fw-semibold">整體預期達成目標值</label>
           <textarea id="c_goal" class="form-control" rows="3" placeholder="1.對象（人數）2.主要活動數量：X場 3.內容 4.預期成效"></textarea>
         </div>
         <div class="col-12">
@@ -1777,7 +1777,6 @@ function validate(payload) {
   if (!payload.subject) { alert('請選擇科別'); return false; }
   if (!payload.plan_name) { alert('請填寫課程名稱或社群名稱'); return false; }
   if (!payload.sub_plan_type) { alert('請選擇子計畫'); return false; }
-  if (!payload.goal_description) { alert('請填寫整體預期達成目標值'); return false; }
   if (payload.sub_plan_type === 'b2' && !payload.plan_goal) { alert('B2 請填寫計畫目標'); return false; }
   if (payload.sub_plan_type === 'c' && !payload.plan_subtype) { alert('C計畫請選擇細項類別'); return false; }
   return true;
@@ -1903,7 +1902,17 @@ function loadOldPlan() {
     } else if (f.activity_description) {
       goalText = f.activity_description;
     }
-    if (goalText) document.getElementById('a1_goal').value = goalText;
+    if (goalText) {
+      document.getElementById('a1_goal').value = goalText;
+      // 同步複製到自我檢視備忘區，供老師參考舊年度目標
+      var memoRefl = document.getElementById('a1_memo_reflection');
+      if (memoRefl) memoRefl.value = goalText;
+      // 自動展開備忘區
+      var memoBody = document.getElementById('a1MemoBody');
+      if (memoBody && !memoBody.classList.contains('show')) {
+        memoBody.classList.add('show');
+      }
+    }
     // 社群成員
     if (f.community_members) document.getElementById('a1_community_members').value = f.community_members;
     if (f.activity_description) document.getElementById('a1_community_desc').value = f.activity_description;
@@ -2019,7 +2028,7 @@ function removeImage(i) {
 }
 
 async function submitForm() {
-  if (!currentUser) { alert('請先登入'); return; }
+  if (!currentUser) { showToast('請先登入', 'warning'); return; }
   var payload = buildPayload();
   if (!validate(payload)) return;
 
@@ -2028,30 +2037,43 @@ async function submitForm() {
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中...';
 
   try {
-    payload.userId      = currentUser.uid;
-    payload.userEmail   = currentUser.email;
-    payload.displayName = currentUser.displayName || '';
-    payload.submittedAt = firebase.firestore.FieldValue.serverTimestamp();
-    // 圖片存為陣列（base64）
-    payload.images = selectedImages.map(function(img){ return { name: img.name, data: img.data }; });
+    // 組合 Firestore 資料：排除 undefined 欄位與大型 base64 圖片（超過 1MB 限制）
+    var fsPayload = {};
+    Object.keys(payload).forEach(function(k) {
+      if (k === 'images') return;
+      var val = payload[k];
+      if (val !== undefined) fsPayload[k] = val;
+    });
+    fsPayload.userId      = currentUser.uid;
+    fsPayload.userEmail   = currentUser.email;
+    fsPayload.displayName = currentUser.displayName || '';
+    fsPayload.submittedAt = firebase.firestore.FieldValue.serverTimestamp();
+    fsPayload.imageCount  = selectedImages.length;
 
-    await db.collection(COL_PLANS).add(payload);
+    console.log('[submitForm] 寫入 Firestore:', COL_PLANS, fsPayload);
+    await db.collection(COL_PLANS).add(fsPayload);
+    console.log('[submitForm] 寫入成功');
 
     document.getElementById('successBanner').style.display = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.getElementById('f_sub_plan').value = '';
     document.querySelectorAll('.plan-section').forEach(function(el) { el.classList.remove('active'); });
     document.getElementById('submitArea').classList.add('d-none');
-    prefillBudgetBasicInfo(payload);
+    prefillBudgetBasicInfo(fsPayload);
     selectedImages = [];
     renderImagePreviews();
     showToast('✅ 計畫書已成功送出！');
     saveDraft();
   } catch(err) {
-    alert('送出失敗：' + err.message);
+    console.error('[submitForm] 失敗:', err);
+    var hint = err.code === 'permission-denied'
+      ? '❌ Firestore 權限拒絕：請確認安全規則已在 Firebase Console 部署'
+      : '❌ 送出失敗：' + err.message;
+    showToast(hint, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send-fill me-2"></i>確認送出';
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="bi bi-send-fill me-2"></i>確認送出';
 }
 
 // ── Tab 切換 & 預填 ────────────────────────────────────────────────────
