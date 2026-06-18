@@ -67,7 +67,6 @@
     .misc-warn { background: #fff3cd; border: 1px solid #ffc107; color: #664d03; border-radius: 6px; padding: .5rem .9rem; font-size: .85rem; margin-top: .75rem; display: none; }
     .delete-btn { color: #dc3545; border: none; background: none; padding: 0 4px; font-size: 1rem; }
     .delete-btn:hover { color: #a71d2a; }
-    #b_successBanner { display: none; }
     /* ── Firebase 新增樣式 ── */
     .memo-section { background: #fffef0; border: 1px dashed #ffc107; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
     .memo-section .section-title { border-bottom-color: #ffc10750; color: #856404; }
@@ -123,7 +122,7 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link fw-semibold" id="budgetTabBtn"
           data-bs-toggle="tab" data-bs-target="#tabBudget" type="button" role="tab">
-          <i class="bi bi-calculator me-1"></i>經費概算
+          <i class="bi bi-calculator me-1"></i>經費初估
         </button>
       </li>
     </ul>
@@ -144,9 +143,9 @@
     <hr class="my-2">
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <i class="bi bi-calculator-fill text-success"></i>
-      <strong>下一步：填寫經費概算</strong>
+      <strong>下一步：填寫經費初估</strong>
       <button class="btn btn-success btn-sm" onclick="switchToBudget()">
-        <i class="bi bi-arrow-right me-1"></i>切換至經費概算頁籤
+        <i class="bi bi-arrow-right me-1"></i>切換至經費初估頁籤
       </button>
       <span class="small text-muted">（基本資訊已自動帶入）</span>
     </div>
@@ -847,16 +846,20 @@
 </div><!-- /plan container -->
 </div><!-- /tabPlan -->
 
-<!-- ════════ Tab 2：經費概算 ════════ -->
+<!-- ════════ Tab 2：經費初估 ════════ -->
 <div class="tab-pane fade" id="tabBudget" role="tabpanel">
 <div class="container pb-5 pt-4" style="max-width:960px">
 
-  <!-- 經費成功提示 -->
-  <div id="b_successBanner" class="alert alert-success alert-dismissible shadow-sm mb-4">
-    <i class="bi bi-check-circle-fill me-2"></i>
-    <strong>經費概算已成功送出！</strong>
-    <span id="b_successDetail"></span>
-    <button type="button" class="btn-close" onclick="document.getElementById('b_successBanner').style.display='none'"></button>
+  <!-- 醒目警語 -->
+  <div class="alert mb-4 shadow-sm" style="background:#e65100;color:#fff;border:none">
+    <h5 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>注意事項</h5>
+    <p class="mb-2 fw-semibold">此頁面僅供經費初估（抓概要）使用，並非正式繳交。</p>
+    <p class="mb-1">請務必完成以下步驟才算完成繳交：</p>
+    <ol class="mb-2 ps-4">
+      <li>點選「<strong>下載經費概算表範本</strong>」下載今年度正式經費表</li>
+      <li>填寫完整後，點選「<strong>開啟繳交資料夾</strong>」將檔案上傳至雲端硬碟</li>
+    </ol>
+    <p class="mb-0 fw-bold fs-6"><i class="bi bi-exclamation-triangle-fill me-1"></i>未上傳至雲端硬碟者，視同尚未繳交！</p>
   </div>
 
   <!-- 帶入提示 -->
@@ -1152,25 +1155,20 @@
     </div>
   </div>
 
-  <!-- 送出按鈕 -->
-  <div class="d-grid gap-2">
-    <button class="btn btn-success btn-lg" onclick="submitBudget()" id="b_submitBtn">
-      <i class="bi bi-send me-2"></i>送出經費概算
-    </button>
-    <div class="d-flex flex-column align-items-center gap-2">
-      <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <button type="button" class="btn btn-outline-success btn-sm"
-                onclick="window.open('https://drive.google.com/uc?export=download&id=1dNVKct4MgxpTounO8UpUtV7esCAxgZ7t','_blank')">
-          <i class="bi bi-file-earmark-excel me-1"></i>下載經費概算表範本
-        </button>
-        <button type="button" class="btn btn-outline-primary btn-sm" onclick="openDriveFolder('budget')">
-          <i class="bi bi-folder2-open me-1"></i>開啟繳交資料夾
-        </button>
-      </div>
-      <p class="text-muted small mb-0 text-center">
-        下載後請依子計畫填寫，完成後點「開啟繳交資料夾」，將 Excel 拖曳上傳即可
-      </p>
+  <!-- 繳交步驟按鈕 -->
+  <div class="d-flex flex-column align-items-center gap-3">
+    <div class="d-flex gap-3 flex-wrap justify-content-center">
+      <button type="button" class="btn btn-success"
+              onclick="window.open('https://drive.google.com/uc?export=download&id=1dNVKct4MgxpTounO8UpUtV7esCAxgZ7t','_blank')">
+        <i class="bi bi-file-earmark-excel me-2"></i>① 下載經費概算表範本
+      </button>
+      <button type="button" class="btn btn-primary" onclick="openDriveFolder('budget')">
+        <i class="bi bi-folder2-open me-2"></i>② 開啟繳交資料夾
+      </button>
     </div>
+    <p class="text-muted small mb-0 text-center">
+      下載正式表單填寫完整後，點「開啟繳交資料夾」將 Excel 拖曳上傳至雲端硬碟
+    </p>
   </div>
 
 </div><!-- /budget container -->
@@ -2391,79 +2389,6 @@ function collectSimpleRows(bodyId, semester) {
   return rows;
 }
 
-async function submitBudget() {
-  if (!currentUser) { alert('請先登入'); return; }
-  var name    = document.getElementById('b_name').value.trim();
-  var subject = document.getElementById('b_subject').value;
-  var subPlan = document.getElementById('b_sub_plan_type').value;
-  var planName= document.getElementById('b_plan_name').value.trim();
-  if (!name || !subject || !subPlan || !planName) {
-    alert('請填寫基本資訊（姓名、科別、子計畫類型、計畫名稱）');
-    return;
-  }
-  var mainItems  = collectMainRows('s1MainBody','上學期').concat(collectMainRows('s2MainBody','下學期'));
-  var goodsItems = collectSimpleRows('s1GoodsBody','上學期').concat(collectSimpleRows('s2GoodsBody','下學期'));
-  var dataItems  = collectSimpleRows('s1DataBody','上學期').concat(collectSimpleRows('s2DataBody','下學期'));
-  if (mainItems.length + goodsItems.length + dataItems.length === 0) {
-    alert('請至少填寫一筆費用項目');
-    return;
-  }
-  var btn = document.getElementById('b_submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>送出中…';
-  try {
-    console.log('[submitBudget] auth.currentUser:',
-      auth.currentUser ? auth.currentUser.email + ' uid=' + auth.currentUser.uid : 'null');
-
-    var budgetPayload = {
-      userId: currentUser.uid, userEmail: currentUser.email,
-      displayName: currentUser.displayName || '',
-      submittedAt: new Date().toISOString(),
-      name: name, subject: subject, sub_plan_type: subPlan, plan_name: planName,
-      main_items: mainItems, goods_items: goodsItems, data_items: dataItems
-    };
-    console.log('[submitBudget] 準備寫入:', COL_BUDGETS, budgetPayload);
-
-    // 讀取測試
-    console.log('[submitBudget] Firestore 連線測試...');
-    await Promise.race([
-      getDoc(doc(db, COL_USERS, currentUser.uid)),
-      new Promise(function(_, reject) {
-        setTimeout(function() { reject({ code: 'timeout', message: '連線測試逾時（5s）' }); }, 5000);
-      })
-    ]);
-    console.log('[submitBudget] 連線測試通過，開始寫入');
-
-    await Promise.race([
-      addDoc(collection(db, COL_BUDGETS), budgetPayload),
-      new Promise(function(_, reject) {
-        setTimeout(function() { reject({ code: 'timeout', message: '寫入逾時（10s）' }); }, 10000);
-      })
-    ]);
-    console.log('[submitBudget] 寫入成功');
-    var grand = document.getElementById('grandTotal').textContent;
-    document.getElementById('b_successDetail').textContent = ' 共計 ' + grand + '，感謝 ' + name + ' 老師完成填報。';
-    document.getElementById('b_successBanner').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    showToast('✅ 經費概算已成功送出！');
-    saveDraft();
-  } catch (err) {
-    console.error('[submitBudget] 失敗 code=' + (err.code||'?') + ' msg=' + (err.message||err));
-    var hint;
-    if (err.code === 'permission-denied') {
-      hint = '❌ 沒有寫入權限，請聯絡計畫主持人';
-    } else if (err.code === 'timeout' || err.code === 'unavailable' || err.code === 'failed-precondition') {
-      hint = '❌ 網路連線問題，請檢查網路連線後重試';
-    } else {
-      hint = '❌ 送出失敗：' + (err.message || JSON.stringify(err));
-    }
-    showToast(hint, 'danger');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-send me-2"></i>送出經費概算';
-  }
-}
-
 // 頁面載入後，初始化預設列
 document.addEventListener('DOMContentLoaded', function() {
   addRow('s1MainBody', 's1Main');
@@ -2493,7 +2418,6 @@ window.openDriveFolder    = openDriveFolder;
 window.addRow             = addRow;
 window.addGoodsRow        = addGoodsRow;
 window.addDataRow         = addDataRow;
-window.submitBudget       = submitBudget;
 window.handleImageSelect  = handleImageSelect;
 window.removeImage        = removeImage;
 window.onCategoryChange   = onCategoryChange;
