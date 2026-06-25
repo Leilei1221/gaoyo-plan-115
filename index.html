@@ -83,14 +83,9 @@
     <div style="font-size:2.8rem;margin-bottom:.5rem">🏫</div>
     <h4 class="fw-bold mb-1">115學年度優高計畫書</h4>
     <p class="text-muted small mb-3">國立花蓮高中 · 僅限 <strong>@hlhs.hlc.edu.tw</strong> 帳號登入</p>
-    <!-- 截止公告 -->
-    <div style="background:#c62828;color:#fff;border-radius:10px;padding:.9rem 1rem;margin-bottom:1rem;text-align:left">
-      <div class="fw-bold mb-1">⏰ 繳交期限已截止</div>
-      <div style="font-size:.85rem">本系統已暫停收件，如有問題請洽 <strong>雅蕾</strong>。</div>
-    </div>
-    <button id="loginBtn" class="btn btn-secondary btn-lg w-100 mb-2" onclick="signInWithGoogle()">
+    <button id="loginBtn" class="btn btn-primary btn-lg w-100 mb-2" onclick="signInWithGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="height:20px;margin-right:8px;vertical-align:middle">
-      管理人員登入
+      使用 Google 帳號登入
     </button>
     <div id="loginError" class="alert alert-danger py-2 small d-none mt-2 text-start"></div>
     <div class="text-muted" style="font-size:.72rem;margin-top:.75rem">請使用學校帳號（@hlhs.hlc.edu.tw）登入，其他帳號將被拒絕</div>
@@ -98,11 +93,6 @@
 </div>
 
 <div id="app" style="display:none">
-
-<!-- 收件截止公告列 -->
-<div style="background:#c62828;color:#fff;text-align:center;padding:.6rem 1rem;font-size:.95rem;font-weight:600;letter-spacing:.02em">
-  ⏰ 繳交期限已截止，本系統暫停收件。如有問題請洽 <strong>雅蕾</strong>。
-</div>
 
 <div class="header-bar">
   <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -841,8 +831,8 @@
           <i class="bi bi-cloud-check me-1"></i>資料將儲存至 Firebase Firestore
         </div>
         <div class="d-flex gap-2 flex-wrap">
-          <button type="button" class="btn btn-secondary px-4" id="submitBtn" disabled>
-            <i class="bi bi-lock-fill me-2"></i>繳交已截止
+          <button type="button" class="btn btn-primary px-4" id="submitBtn" onclick="submitForm()">
+            <i class="bi bi-send-fill me-2"></i>確認送出
           </button>
         </div>
       </div>
